@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "IntraMaps"
+version = "0.1.0"
+description = "IntraMaps is a PathFinder solution designed to work with indoor environments."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi","uvicorn[standard]","networkx","pillow"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest","httpx","pdoc","pylint"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
