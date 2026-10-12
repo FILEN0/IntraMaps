@@ -1,3 +1,4 @@
+'''Enums for building elements.'''
 from enum import Enum
 
 class EnumNode(Enum):
@@ -18,4 +19,3 @@ class EnumConnection(Enum):
     CORRIDOR = "CORRIDOR"
     STAIRS = "STAIRS"
     ELEVATOR = "ELEVATOR"
-
