@@ -7,18 +7,18 @@ class Coordinates:
     Attributes:
         x: X coordinate in meters.
         y: Y coordinate in meters.
-        floor: floor number.
+        floor_id: Floor identifier.
     """
-    def __init__(self, x: float, y: float, floor: int):
+    def __init__(self, x: float, y: float, floor_id: int):
         if not isinstance(x, (int, float)):
             raise ValueError("x must be a number")
         if not isinstance(y, (int, float)):
             raise ValueError("y must be a number")
-        if not isinstance(floor, (int)):
-            raise ValueError("floor must be an integer")
+        if not isinstance(floor_id, (int)):
+            raise ValueError("floor_id must be an integer")
         self.__x = x
         self.__y = y
-        self.__floor = floor
+        self.__floor_id = floor_id
 
     @property
     def x(self) -> float:
@@ -31,9 +31,9 @@ class Coordinates:
         return self.__y
 
     @property
-    def floor(self) -> int:
-        '''Returns the floor number.'''
-        return self.__floor
+    def floor_id(self) -> int:
+        '''Returns the floor identifier.'''
+        return self.__floor_id
 
     def distance_to(self, other: 'Coordinates') -> float:
         """Calculates the Euclidean distance to another Coordinates object.
@@ -46,12 +46,12 @@ class Coordinates:
         """
         if not isinstance(other, Coordinates):
             raise ValueError("other must be a Coordinates object")
-        if not self.floor == other.floor:
+        if not self.floor_id == other.floor_id:
             raise ValueError("Cannot calculate distance between points on different floors")
         return math.dist((self.__x, self.__y), (other.x, other.y))
 
     def __repr__(self):
-        return f"Coordinates(x={self.__x}m, y={self.__y}m, floor={self.__floor})"
+        return f"Coordinates(x={self.__x}m, y={self.__y}m, floor_id={self.__floor_id})"
 
     def __str__(self):
-        return f"({self.__x}m, {self.__y}m, {self.__floor})"
+        return f"({self.__x}m, {self.__y}m, {self.__floor_id}))"
