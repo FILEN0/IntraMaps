@@ -17,6 +17,11 @@ class PseudoNode(Node,ABC):
         type: Type of the node, defined by EnumNode.
     '''
 
+    def __init__(self, node_id: int, node_type, coordinates):
+        if type(self) is PseudoNode: # pylint: disable=unidiomatic-typecheck
+            raise TypeError("PseudoNode is an abstract class and cannot be instantiated directly.")
+        super().__init__(node_id, node_type, coordinates)
+
     def is_valid_destination(self, gender, accessibility, role) -> bool:
         '''
         Determines if the node is a valid destination for a given user profile.
