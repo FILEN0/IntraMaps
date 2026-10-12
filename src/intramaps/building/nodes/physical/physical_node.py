@@ -1,5 +1,5 @@
 '''A physical node in a building. 
-Places where the user search for to get to. 
+Places the user searches for. 
 Can be a room, washroom, cafeteria, study space, photo spot, building exit, or drinking fountain.'''
 from abc import ABC, abstractmethod
 from intramaps.building.nodes.node import Node
@@ -10,11 +10,8 @@ from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
 class PhysicalNode(Node,ABC):
     '''
     A physical node in a building. 
-    Places where the user search for to get to. 
+    Places the user searches for. 
     e.g.: a room, washroom, cafeteria, study space, photo spot, building exit, or drinking fountain.
- 
-    Heritance:
-        Node, ABC
         
     Attributes:
         id: Unique identifier for the node.

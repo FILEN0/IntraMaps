@@ -1,6 +1,7 @@
 '''A pseudo node in a building. 
 Places where the user navigate through, but not target destinations. 
-Can be a corridor_end, elevator_door, ramp_entrance, stairs_entrance .'''
+Can be a corridor_end, elevator_door, ramp_entrance, stairs_entrance .
+'''
 from abc import ABC
 from intramaps.building.nodes.node import Node
 
@@ -8,14 +9,10 @@ class PseudoNode(Node,ABC):
     '''
     A pseudo node in a building. 
     Places where the user navigate through, but not target destinations. 
-    e.g.: a corridor_end, elevator_door, ramp_entrance, or staircase_entrance.
+    e.g.: a corridor_end, elevator_door, ramp_entrance, or stairs_entrance.
 
-    Heritance:
-        Node, ABC
-        
     Attributes:
         id: Unique identifier for the node.
-        name: Name of the node.
         coordinates: Coordinates of the node.
         type: Type of the node, defined by EnumNode.
     '''

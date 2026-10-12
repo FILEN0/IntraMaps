@@ -7,14 +7,14 @@ from intramaps.enums.enum_user import EnumGender, EnumRole, EnumAccessibility
 
 class Node(ABC):
     '''A graph node with a location and type.
-
-    Heritance:
-        ABC
-        
+    
     Attributes:
         id: Unique identifier for the node.
         type: Type of the node, defined by EnumNode.
         coordinates: A Coordinates object representing the node in 2D space and its floor id.
+
+    Todo:
+        tests: Node(), PhysicalNode() and PseudoNode() cannot be instantiated directly.
     '''
 
     def __init__(self, node_id: int, node_type: EnumNode, coordinates: Coordinates):
