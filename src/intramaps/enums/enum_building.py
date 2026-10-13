@@ -12,11 +12,12 @@ class EnumNode(Enum):
     CAFETERIA = 5
     BUILDING_EXIT = 6
     DRINKING_FOUNTAIN = 7
+    BICYCLE_PARKING = 8
     '''Pseudo nodes are places where the user navigate through, but not target destinations.'''
-    CORRIDOR_END = 8
-    STAIRS_ENTRANCE = 9
-    RAMP_ENTRANCE = 10
-    ELEVATOR_DOOR = 11
+    CORRIDOR_END = 9
+    STAIRS_ENTRANCE = 10
+    RAMP_ENTRANCE = 11
+    ELEVATOR_DOOR = 12
 
 class EnumConnection(Enum):
     '''Enum for connection types.'''
@@ -24,3 +25,9 @@ class EnumConnection(Enum):
     STAIRS = 1
     ELEVATOR = 2
     RAMP = 3
+
+class EnumStatus(Enum):
+    '''Enum for node and connection status'''
+    OK = 0
+    MAINTENANCE = 1
+    CLOSED = 2

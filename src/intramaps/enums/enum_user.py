@@ -3,9 +3,10 @@ from enum import Enum
 
 class EnumGender(Enum):
     '''Enum for gender types.'''
-    MALE = 0
-    FEMALE = 1
-    OTHER = 2
+    NONE = 0
+    MALE = 1
+    FEMALE = 2
+    OTHER = 3
 
 class EnumRole(Enum):
     '''Enum for user roles.'''

@@ -9,7 +9,7 @@ class PhysicalNode(Node,ABC):
     '''
     A physical node in a building. 
     Places the user searches for. 
-    e.g.: a room, washroom, cafeteria, study space, photo spot, building exit, or drinking fountain.
+    e.g.: a room, washroom, cafeteria, study space, photo spot, building exit, drinking fountain or bicycle parking.
         
     Attributes:
         id: Unique identifier for the node.
