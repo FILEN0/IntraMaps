@@ -1,6 +1,4 @@
-'''A physical node in a building. 
-Places the user searches for. 
-Can be a room, washroom, cafeteria, study space, photo spot, building exit, or drinking fountain.'''
+'''PhysicalNode class definition.'''
 from abc import ABC, abstractmethod
 from intramaps.building.nodes.node import Node
 from intramaps.building.geometry.coordinates import Coordinates

@@ -1,4 +1,4 @@
-'''A graph node with a location and type.'''
+'''Node class definition.'''
 
 from abc import ABC, abstractmethod
 from intramaps.building.geometry.coordinates import Coordinates

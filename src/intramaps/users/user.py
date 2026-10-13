@@ -1,4 +1,4 @@
-'''Represents a user profile with specific attributes.'''
+'''User class definition.'''
 from intramaps.enums.enum_user import EnumGender, EnumRole, EnumAccessibility
 class User:
     '''Represents a user profile with specific attributes.
