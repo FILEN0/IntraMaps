@@ -3,24 +3,24 @@ from enum import Enum
 
 class EnumNode(Enum):
     '''Enum for node types.'''
-    NONE = "NONE"
+    NONE = 0
     '''Physical nodes are places where the user search for to get to.'''
-    ROOM = "ROOM"
-    WASHROOM = "WASHROOM"
-    STUDY_SPACE = "STUDY_SPACE"
-    PHOTO_SPOT = "PHOTO_SPOT"
-    CAFETERIA = "CAFETERIA"
-    BUILDING_EXIT = "BUILDING_EXIT"
-    DRINKING_FOUNTAIN = "DRINKING_FOUNTAIN"
+    ROOM = 1
+    WASHROOM = 2
+    STUDY_SPACE = 3
+    PHOTO_SPOT = 4
+    CAFETERIA = 5
+    BUILDING_EXIT = 6
+    DRINKING_FOUNTAIN = 7
     '''Pseudo nodes are places where the user navigate through, but not target destinations.'''
-    CORRIDOR_END = "CORRIDOR_END"
-    STAIRS_ENTRANCE = "STAIRS_ENTRANCE"
-    RAMP_ENTRANCE = "RAMP_ENTRANCE"
-    ELEVATOR_DOOR = "ELEVATOR_DOOR"
+    CORRIDOR_END = 8
+    STAIRS_ENTRANCE = 9
+    RAMP_ENTRANCE = 10
+    ELEVATOR_DOOR = 11
 
 class EnumConnection(Enum):
     '''Enum for connection types.'''
-    CORRIDOR = "CORRIDOR"
-    STAIRS = "STAIRS"
-    ELEVATOR = "ELEVATOR"
-    RAMP = "RAMP"
+    CORRIDOR = 0
+    STAIRS = 1
+    ELEVATOR = 2
+    RAMP = 3

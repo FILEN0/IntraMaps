@@ -3,18 +3,18 @@ from enum import Enum
 
 class EnumGender(Enum):
     '''Enum for gender types.'''
-    MALE = "MALE"
-    FEMALE = "FEMALE"
-    OTHER = "OTHER"
+    MALE = 0
+    FEMALE = 1
+    OTHER = 2
 
 class EnumRole(Enum):
     '''Enum for user roles.'''
-    STUDENT = "STUDENT"
-    FACULTY = "FACULTY"
-    STAFF = "STAFF"
+    STUDENT = 0
+    FACULTY = 1
+    STAFF = 2
 
 class EnumAccessibility(Enum):
     '''Enum for accessibility needs.'''
-    NONE = "NONE"
-    WHEELCHAIR = "WHEELCHAIR"
-    CRUTCHES = "CRUTCHES"
+    NONE = 0
+    WHEELCHAIR = 1
+    CRUTCHES = 2
