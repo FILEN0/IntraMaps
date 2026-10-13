@@ -3,7 +3,6 @@ from enum import Enum
 
 class EnumNode(Enum):
     '''Enum for node types.'''
-    NONE = 0
     '''Physical nodes are places where the user search for to get to.'''
     ROOM = 1
     WASHROOM = 2
