@@ -1,0 +1,84 @@
+'''NodeRepository class definition.'''
+from intramaps.database.database import Database
+from intramaps.building.nodes.node import Node
+from intramaps.enums.enum_building import EnumNode
+from intramaps.building.factory import make_node
+class NodeRepository:
+    '''Saves and loads nodes.'''
+
+    def __init__(self, conn: Database) -> None:
+        self.__connection = conn
+
+    def add(self, node) -> None:
+        '''Saves a node in the nodes table.
+
+        Args:
+            node: The node to save. Its name is saved only if the class has one.
+        '''
+
+        values = (
+            node.id,
+            node.coordinates.floor_id,
+            getattr(node, "name", None),
+            node.type.value,
+            node.coordinates.x,
+            node.coordinates.y,
+        )
+
+        self.__connection.execute(
+            "INSERT INTO nodes (id, floor_id, name, type, x, y) VALUES (?, ?, ?, ?, ?, ?)",
+            values
+        )
+
+    def list_all(self, floor_id: int | None = None,
+                 node_type: EnumNode | None = None) -> list[Node]:
+        '''Loads the nodes, ordered by id.
+
+        Args:
+            floor_id: If given, only the nodes of this floor.
+            node_type: If given, only the nodes of this type.
+
+        Returns:
+            The nodes as objects (Room, PseudoNode...).
+        '''
+
+        conditions = []
+        params = []
+
+        if floor_id is not None:
+            conditions.append("floor_id = ?")
+            params.append(floor_id)
+
+        if node_type is not None:
+            conditions.append("type = ?")
+            params.append(node_type.value)
+
+        where = " WHERE " + " AND ".join(conditions) if conditions else ""
+
+        rows = self.__connection.fetch(
+            "SELECT id, floor_id, name, type, x, y FROM nodes" + where + " ORDER BY id",
+            tuple(params),
+        )
+
+        return [make_node(row) for row in rows]
+
+    def update(self, node: Node) -> None:
+        '''Overwrites the saved node that has the same id.
+
+        Args:
+            node: The node with the new values.
+        '''
+        values = (
+            node.coordinates.floor_id,
+            getattr(node, "name", None),
+            node.type.value,
+            node.coordinates.x,
+            node.coordinates.y,
+            node.id,
+        )
+        cursor = self.__connection.execute(
+            "UPDATE nodes SET floor_id = ?, name = ?, type = ?, x = ?, y = ? WHERE id = ?",
+            values,
+        )
+        if cursor.rowcount == 0:
+            raise ValueError(f"node {node.id} not found")
