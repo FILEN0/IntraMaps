@@ -1,11 +1,11 @@
 '''Room class definition.'''
-from intramaps.building.nodes.physical.physical_node import PhysicalNode
+from intramaps.building.nodes.node import Node
 from intramaps.enums.enum_building import EnumNode
 
-class Room(PhysicalNode):
+class Room(Node):
     '''
-    A room in the building.
-    
+    A room in the building. Rooms are searched by name, so the name is required.
+
     Attributes:
         id: Unique identifier for the room.
         name: Name of the room.
@@ -14,7 +14,15 @@ class Room(PhysicalNode):
     '''
 
     def __init__(self, node_id: int, coordinates, node_name: str):
-        super().__init__(node_id, EnumNode.ROOM, coordinates, node_name)
+        if not isinstance(node_name, str) or not node_name.strip():
+            raise ValueError("name must be a non-empty string")
+        super().__init__(node_id, EnumNode.ROOM, coordinates)
+        self.__name = node_name
+
+    @property
+    def name(self) -> str:
+        '''Returns the name of the room.'''
+        return self.__name
 
     def is_valid_destination(self, gender, accessibility, role) -> bool:
         '''
