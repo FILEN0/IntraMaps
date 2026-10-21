@@ -69,3 +69,24 @@ class Corridor(Connection):
     def _distance(self, speed: float) -> float:
         '''Returns the time in seconds to walk the whole line at the given speed.'''
         return self.length / speed
+
+    def child_distance(self, child: Node, end: PseudoNode, speed: float) -> float:
+        '''Returns the time in seconds to walk from one end of the corridor to a child.
+
+        Args:
+            child: A node of the children of this corridor.
+            end: The end the walk starts from, node_a or node_b.
+            speed: Walking speed of the user, in meters per second.
+
+        Raises:
+            ValueError: If child is not a child of this corridor, end is not one of its ends,
+                or speed is not a positive number.
+        '''
+        position = next((pos for node, pos in self.__children if node.id == child.id), None)
+        if position is None:
+            raise ValueError("the node is not a child of this corridor")
+        if end.id == self.node_a.id:
+            return self.distance(speed) * position
+        if end.id == self.node_b.id:
+            return self.distance(speed) * (1 - position)
+        raise ValueError("end must be one of the ends of this corridor")
