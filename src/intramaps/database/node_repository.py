@@ -13,20 +13,21 @@ class NodeRepository:
         '''Saves a node in the nodes table.
 
         Args:
-            node: The node to save. Its name is saved only if the class has one.
+            node: The node to save. Its name and number are saved only if the class has them.
         '''
 
         values = (
             node.id,
             node.coordinates.floor_id,
             getattr(node, "name", None),
+            getattr(node, "number", None),
             node.type.value,
             node.coordinates.x,
             node.coordinates.y,
         )
 
         self.__connection.execute(
-            "INSERT INTO nodes (id, floor_id, name, type, x, y) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO nodes (id, floor_id, name, number, type, x, y) VALUES (?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
             values
         )
 
@@ -56,7 +57,7 @@ class NodeRepository:
         where = " WHERE " + " AND ".join(conditions) if conditions else ""
 
         rows = self.__connection.fetch(
-            "SELECT id, floor_id, name, type, x, y FROM nodes" + where + " ORDER BY id",
+            "SELECT id, floor_id, name, number, type, x, y FROM nodes" + where + " ORDER BY id",
             tuple(params),
         )
 
@@ -71,13 +72,14 @@ class NodeRepository:
         values = (
             node.coordinates.floor_id,
             getattr(node, "name", None),
+            getattr(node, "number", None),
             node.type.value,
             node.coordinates.x,
             node.coordinates.y,
             node.id,
         )
         cursor = self.__connection.execute(
-            "UPDATE nodes SET floor_id = ?, name = ?, type = ?, x = ?, y = ? WHERE id = ?",
+            "UPDATE nodes SET floor_id = ?, name = ?, number = ?, type = ?, x = ?, y = ? WHERE id = ?", # pylint: disable=line-too-long
             values,
         )
         if cursor.rowcount == 0:

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS nodes (
     floor_id INTEGER NOT NULL
         REFERENCES floors(id),
     name TEXT,
+    number TEXT,
     type INTEGER NOT NULL
         CHECK (type BETWEEN 1 AND 12),
     x REAL NOT NULL
@@ -30,7 +31,8 @@ CREATE TABLE IF NOT EXISTS nodes (
     status INTEGER NOT NULL DEFAULT 0
         CHECK (status BETWEEN 0 AND 2),
 
-    CHECK (gender_restriction = 0 OR type = 2)
+    CHECK (gender_restriction = 0 OR type = 2),
+    CHECK (type <> 1 OR name IS NOT NULL OR number IS NOT NULL)
 );
 
 CREATE TABLE IF NOT EXISTS connections (

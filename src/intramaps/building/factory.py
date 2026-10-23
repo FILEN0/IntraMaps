@@ -29,4 +29,4 @@ def make_node(row) -> Node:
               | EnumNode.RAMP_ENTRANCE | EnumNode.ELEVATOR_DOOR):
             return PseudoNode(row["id"], node_type, coordinates)
         case _:
-            return Room(row["id"], coordinates, row["name"])
+            return Room(row["id"], coordinates, row["name"], row["number"])
