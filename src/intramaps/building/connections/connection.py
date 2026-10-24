@@ -1,5 +1,7 @@
 '''Connection class definition.'''
 from abc import ABC, abstractmethod
+from intramaps.building.geometry.coordinates import Coordinates
+from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.pseudo_node import PseudoNode
 from intramaps.enums.enum_building import EnumConnection, EnumStatus
 
@@ -11,11 +13,14 @@ class Connection(ABC):
         type: Type of the connection, defined by EnumConnection.
         node_a: One end of the connection, the one with the smaller id.
         node_b: The other end of the connection.
+        geometry: The line of the connection, from node_a through the waypoints to node_b.
+        waypoints: The bends of the line between the two ends, in order from node_a to node_b.
         status: Whether the connection can be used, defined by EnumStatus.
     '''
 
-    def __init__(self, connection_id: int, connection_type: EnumConnection,
-                 node_a: PseudoNode, node_b: PseudoNode, status: EnumStatus = EnumStatus.OK):
+    def __init__(self, connection_id: int, connection_type: EnumConnection, # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 node_a: PseudoNode, node_b: PseudoNode,
+                 waypoints: tuple[Coordinates, ...] = (), status: EnumStatus = EnumStatus.OK):
         if not isinstance(connection_id, int):
             raise ValueError("id must be an integer")
         if not isinstance(connection_type, EnumConnection):
@@ -31,6 +36,7 @@ class Connection(ABC):
         self.__node_a = node_a
         self.__node_b = node_b
         self.__status = status
+        self.__geometry = Geometry((node_a.coordinates, *waypoints, node_b.coordinates))
 
     @property
     def id(self) -> int:
@@ -51,6 +57,16 @@ class Connection(ABC):
     def node_b(self) -> PseudoNode:
         '''Returns the end with the larger id.'''
         return self.__node_b
+
+    @property
+    def geometry(self) -> Geometry:
+        '''Returns the line of the connection.'''
+        return self.__geometry
+
+    @property
+    def waypoints(self) -> tuple[Coordinates, ...]:
+        '''Returns the bends of the line between the two ends, in order from node_a to node_b.'''
+        return self.__geometry.points[1:-1]
 
     @property
     def status(self) -> EnumStatus:
