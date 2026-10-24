@@ -3,6 +3,11 @@ from intramaps.building.connections.connection import Connection
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.nodes.node import Node
 
+def _label(node: Node) -> str:
+    '''Returns the name or number of a node, or its type and id when it has neither.'''
+    return (getattr(node, "name", None) or getattr(node, "number", None)
+            or f"{node.type.name.lower().replace('_', ' ')} {node.id}")
+
 class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-arguments
     '''One stretch of a route, walked along a single connection.
 
