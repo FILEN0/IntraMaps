@@ -1,6 +1,7 @@
 '''RouteStep class definition.'''
 from intramaps.building.connections.connection import Connection
 from intramaps.building.geometry.coordinates import Coordinates
+from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.node import Node
 
 def _label(node: Node) -> str:
@@ -15,24 +16,26 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         connection: The connection the stretch is walked along.
         start: The node where the stretch begins.
         end: The node where the stretch ends.
-        points: The points of the stretch in travel order, at least two.
+        geometry: The line of the stretch, in travel order.
+        points: The points of the line.
+        meters: Length of the stretch in meters, or None when it changes floors.
         seconds: Time to walk the stretch, in seconds.
     '''
 
     def __init__(self, connection: Connection, start: Node, end: Node,
-                 points: tuple[Coordinates, ...], seconds: float):
+                 geometry: Geometry, seconds: float):
         if not isinstance(connection, Connection):
             raise ValueError("connection must be an instance of Connection")
         if not isinstance(start, Node) or not isinstance(end, Node):
             raise ValueError("start and end must be nodes")
-        if len(points) < 2 or not all(isinstance(point, Coordinates) for point in points):
-            raise ValueError("points must be at least two Coordinates objects")
+        if not isinstance(geometry, Geometry):
+            raise ValueError("geometry must be an instance of Geometry")
         if isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or seconds < 0:
             raise ValueError("seconds must be a number that is not negative")
         self.__connection = connection
         self.__start = start
         self.__end = end
-        self.__points = tuple(points)
+        self.__geometry = geometry
         self.__seconds = seconds
 
     @property
@@ -51,9 +54,21 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         return self.__end
 
     @property
+    def geometry(self) -> Geometry:
+        '''Returns the line of the stretch.'''
+        return self.__geometry
+
+    @property
     def points(self) -> tuple[Coordinates, ...]:
         '''Returns the points of the stretch in travel order.'''
-        return self.__points
+        return self.__geometry.points
+
+    @property
+    def meters(self) -> float | None:
+        '''Returns the length of the stretch in meters, or None when it changes floors.'''
+        if len({point.floor_id for point in self.__geometry.points}) > 1:
+            return None
+        return self.__geometry.length
 
     @property
     def seconds(self) -> float:
