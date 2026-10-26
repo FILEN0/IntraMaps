@@ -2,13 +2,13 @@
 import math
 
 class Coordinates:
-    """A point in a floor.
+    '''A point in a floor.
 
     Attributes:
         x: X coordinate in meters.
         y: Y coordinate in meters.
         floor_id: Floor identifier.
-    """
+    '''
     def __init__(self, x: float, y: float, floor_id: int):
         if not isinstance(x, (int, float)):
             raise ValueError("x must be a number")
@@ -36,14 +36,14 @@ class Coordinates:
         return self.__floor_id
 
     def distance_to(self, other: 'Coordinates') -> float:
-        """Calculates the Euclidean distance to another Coordinates object.
+        '''Calculates the Euclidean distance to another Coordinates object.
 
         Args:
             other: Another Coordinates object.
 
         Returns:
             The Euclidean distance in meters.
-        """
+        '''
         if not isinstance(other, Coordinates):
             raise ValueError("other must be a Coordinates object")
         if not self.floor_id == other.floor_id:

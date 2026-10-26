@@ -12,9 +12,6 @@ class Node(ABC):
         id: Unique identifier for the node.
         type: Type of the node, defined by EnumNode.
         coordinates: A Coordinates object representing the node in 2D space and its floor id.
-
-    Todo:
-        tests: Node(), PhysicalNode() and PseudoNode() cannot be instantiated directly.
     '''
 
     def __init__(self, node_id: int, node_type: EnumNode, coordinates: Coordinates):

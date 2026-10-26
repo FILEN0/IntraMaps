@@ -3,7 +3,7 @@ from enum import Enum
 
 class EnumNode(Enum):
     '''Enum for node types.'''
-    '''Physical nodes are places where the user search for to get to.'''
+    '''Physical nodes are places where the user search for to get to.'''  # pylint: disable=pointless-string-statement
     ROOM = 1
     WASHROOM = 2
     STUDY_SPACE = 3
