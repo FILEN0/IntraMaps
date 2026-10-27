@@ -8,6 +8,8 @@ class Geometry:
     Attributes:
         points: The points of the line, at least two, from the first end to the last end.
         length: Length of the line in meters.
+        approach_point: The point right before the end of the line.
+        departure_point: The point right after the start of the line.
     '''
 
     def __init__(self, points: tuple[Coordinates, ...]):
@@ -28,6 +30,16 @@ class Geometry:
     def length(self) -> float:
         '''Returns the length of the line in meters.'''
         return self.__distances()[-1]
+
+    @property
+    def approach_point(self) -> Coordinates:
+        '''Returns the point right before the end of the line.'''
+        return self.__points[-2]
+
+    @property
+    def departure_point(self) -> Coordinates:
+        '''Returns the point right after the start of the line.'''
+        return self.__points[1]
 
     def point_at(self, position: float) -> Coordinates:
         '''Finds the point at a position along the line.
