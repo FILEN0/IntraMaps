@@ -3,6 +3,7 @@ from intramaps.building.connections.connection import Connection
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.node import Node
+from intramaps.enums.enum_routing import EnumMovement
 
 def _label(node: Node) -> str:
     '''Returns the name or number of a node, or its type and id when it has neither.'''
@@ -22,6 +23,11 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         meters: Length of the stretch in meters, or None when it changes floors.
         seconds: Time to walk the stretch, in seconds.
     '''
+
+    STRAIGHT_LIMIT = 20
+    SLIGHT_LIMIT = 60
+    SHARP_LIMIT = 120
+    BACK_LIMIT = 160
 
     def __init__(self, connection: Connection, start: Node, end: Node,
                  geometry: Geometry, seconds: float):
@@ -76,18 +82,20 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
             return None
         return self.__geometry.length
 
-    def turn_to(self, following: 'RouteStep') -> float | None:
-        '''Calculates the turn made where this step meets the one that comes next.
+    def go_to(self, following: 'RouteStep') -> EnumMovement | None:
+        '''Finds what to do where this step meets the one that comes next.
 
-        Only the junction counts, and not the corners inside each step.
+        Only the junction counts, and not the corners inside each step. The size of the turn,
+        in degrees, decides the movement: up to STRAIGHT_LIMIT is straight on, up to SLIGHT_LIMIT
+        is slightly to a side, up to SHARP_LIMIT is to a side, up to BACK_LIMIT is sharply to a
+        side, and more than that is going back.
 
         Args:
             following: The step that starts where this one ends.
 
         Returns:
-            The angle in degrees from -180 up to 180. Positive is a turn to the right,
-            negative is a turn to the left, and 0 is going straight on. It is None when either step
-            changes floors, because there is no direction to compare.
+            STRAIGHT, SLIGHT_RIGHT, RIGHT, SHARP_RIGHT, BACK or the same three to the left.
+            It is None when either step changes floors, because there is no direction to compare.
         '''
         if not isinstance(following, RouteStep):
             raise ValueError("following must be a RouteStep object")
@@ -96,7 +104,19 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         junction = self.points[-1]
         if following.points[0] != junction:
             raise ValueError("the steps do not meet at the same point")
-        return junction.turn_angle(self.geometry.approach_point, following.geometry.departure_point)
+        angle = junction.turn_angle(self.geometry.approach_point,
+                                    following.geometry.departure_point)
+        size = abs(angle)
+        right = angle > 0
+        if size <= self.STRAIGHT_LIMIT:
+            return EnumMovement.STRAIGHT
+        if size > self.BACK_LIMIT:
+            return EnumMovement.BACK
+        if size <= self.SLIGHT_LIMIT:
+            return EnumMovement.SLIGHT_RIGHT if right else EnumMovement.SLIGHT_LEFT
+        if size <= self.SHARP_LIMIT:
+            return EnumMovement.RIGHT if right else EnumMovement.LEFT
+        return EnumMovement.SHARP_RIGHT if right else EnumMovement.SHARP_LEFT
 
     @property
     def seconds(self) -> float:

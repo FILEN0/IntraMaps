@@ -1,5 +1,6 @@
 '''Route class definition.'''
 from intramaps.building.nodes.node import Node
+from intramaps.enums.enum_routing import EnumMovement
 from intramaps.routing.route_step import RouteStep
 
 class Route:
@@ -10,7 +11,7 @@ class Route:
         origin: The node where the route begins.
         destination: The node where the route ends.
         seconds: Time to walk the whole route, in seconds.
-        turns: The turn made where each step meets the next one, or None when it does not apply.
+        movements: What to do where each step meets the next one, or None when it does not apply.
     '''
 
     def __init__(self, steps: tuple[RouteStep, ...]):
@@ -42,12 +43,12 @@ class Route:
         return sum(step.seconds for step in self.__steps)
 
     @property
-    def turns(self) -> tuple[float | None, ...]:
-        '''Returns the turn in degrees made where each step meets the next one.
+    def movements(self) -> tuple[EnumMovement | None, ...]:
+        '''Returns what to do where each step meets the next one.
 
-        Only the junctions between steps count, and not the corners inside a step. Positive is a
-        turn to the right, negative to the left, and 0 is going straight on. A turn is None next to
-        a step that changes floors (stairs, elevator). A route with n steps has n - 1 turns.
+        Only the junctions between steps count, and not the corners inside a step. A movement is
+        None next to a step that changes floors (stairs, elevator). A route with n steps has n - 1
+        movements.
         '''
-        return tuple(arriving.turn_to(leaving)
+        return tuple(arriving.go_to(leaving)
                      for arriving, leaving in zip(self.__steps, self.__steps[1:]))
