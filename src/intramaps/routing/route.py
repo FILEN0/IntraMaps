@@ -10,6 +10,7 @@ class Route:
         origin: The node where the route begins.
         destination: The node where the route ends.
         seconds: Time to walk the whole route, in seconds.
+        turns: The turn made where each step meets the next one, or None when it does not apply.
     '''
 
     def __init__(self, steps: tuple[RouteStep, ...]):
@@ -39,3 +40,14 @@ class Route:
     def seconds(self) -> float:
         '''Returns the time to walk the whole route, in seconds.'''
         return sum(step.seconds for step in self.__steps)
+
+    @property
+    def turns(self) -> tuple[float | None, ...]:
+        '''Returns the turn in degrees made where each step meets the next one.
+
+        Only the junctions between steps count, and not the corners inside a step. Positive is a
+        turn to the right, negative to the left, and 0 is going straight on. A turn is None next to
+        a step that changes floors (stairs, elevator). A route with n steps has n - 1 turns.
+        '''
+        return tuple(arriving.turn_to(leaving)
+                     for arriving, leaving in zip(self.__steps, self.__steps[1:]))
