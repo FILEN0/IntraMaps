@@ -27,6 +27,6 @@ def make_node(row) -> Node:
     match node_type:
         case (EnumNode.CORRIDOR_END | EnumNode.STAIRS_ENTRANCE
               | EnumNode.RAMP_ENTRANCE | EnumNode.ELEVATOR_DOOR):
-            return PseudoNode(row["id"], node_type, coordinates)
+            return PseudoNode(row["id"], node_type, coordinates, row["facing"])
         case _:
             return Room(row["id"], coordinates, row["name"], row["number"])
