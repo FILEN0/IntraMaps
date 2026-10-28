@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS nodes (
         CHECK (x >= 0),
     y REAL NOT NULL
         CHECK (y >= 0),
+    facing REAL
+        CHECK (facing >= 0 AND facing < 360),
     gender_restriction INTEGER NOT NULL DEFAULT 0
         CHECK (gender_restriction BETWEEN 0 AND 3),
     role_restriction INTEGER NOT NULL DEFAULT 0
@@ -32,7 +34,8 @@ CREATE TABLE IF NOT EXISTS nodes (
         CHECK (status BETWEEN 0 AND 2),
 
     CHECK (gender_restriction = 0 OR type = 2),
-    CHECK (type <> 1 OR name IS NOT NULL OR number IS NOT NULL)
+    CHECK (type <> 1 OR name IS NOT NULL OR number IS NOT NULL),
+    CHECK ((type IN (10, 12)) = (facing IS NOT NULL))
 );
 
 CREATE TABLE IF NOT EXISTS connections (

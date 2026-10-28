@@ -1,5 +1,6 @@
 '''Building Models Factory. Parses database rows into objects.'''
 from intramaps.building.geometry.coordinates import Coordinates
+from intramaps.building.nodes.floor_change_node import FloorChangeNode
 from intramaps.building.nodes.node import Node
 from intramaps.building.nodes.pseudo_node import PseudoNode
 from intramaps.building.nodes.physical.room import Room
@@ -16,7 +17,8 @@ def make_node(row) -> Node:
         row: A row of the nodes table, readable by column name.
 
     Returns:
-        A PseudoNode for pass-through types, or a Room for every physical type
+        A PseudoNode for corridor ends and ramp entrances, a FloorChangeNode for stairs
+        entrances and elevator doors, or a Room for every physical type
         (physical types without a class of their own yet are rooms).
 
     Raises:
@@ -25,8 +27,9 @@ def make_node(row) -> Node:
     node_type = EnumNode(row["type"])
     coordinates = make_coordinates(row)
     match node_type:
-        case (EnumNode.CORRIDOR_END | EnumNode.STAIRS_ENTRANCE
-              | EnumNode.RAMP_ENTRANCE | EnumNode.ELEVATOR_DOOR):
+        case EnumNode.CORRIDOR_END | EnumNode.RAMP_ENTRANCE:
             return PseudoNode(row["id"], node_type, coordinates)
+        case EnumNode.STAIRS_ENTRANCE | EnumNode.ELEVATOR_DOOR:
+            return FloorChangeNode(row["id"], node_type, coordinates, row["facing"])
         case _:
             return Room(row["id"], coordinates, row["name"], row["number"])

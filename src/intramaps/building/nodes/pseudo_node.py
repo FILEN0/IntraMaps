@@ -1,18 +1,17 @@
-'''A pseudo node in a building. 
-Places where the user navigate through, but not target destinations. 
-Can be a corridor_end, elevator_door, ramp_entrance, stairs_entrance .
+'''A pseudo node in a building.
+Places where the user navigate through, but not target destinations.
+Can be a corridor_end or a ramp_entrance. Nodes that change floors are FloorChangeNodes.
 '''
-from abc import ABC
 from intramaps.building.nodes.node import Node
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.enums.enum_building import EnumNode
 from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
 
-class PseudoNode(Node,ABC):
+class PseudoNode(Node):
     '''
-    A pseudo node in a building. 
-    Places where the user navigate through, but not target destinations. 
-    e.g.: a corridor_end, elevator_door, ramp_entrance, or stairs_entrance.
+    A pseudo node in a building.
+    Places where the user navigate through, but not target destinations.
+    e.g.: a corridor_end or a ramp_entrance.
 
     Attributes:
         id: Unique identifier for the node.
@@ -20,13 +19,11 @@ class PseudoNode(Node,ABC):
         type: Type of the node, defined by EnumNode.
     '''
 
+    TYPES = (EnumNode.CORRIDOR_END, EnumNode.RAMP_ENTRANCE)
+
     def __init__(self, node_id: int, node_type: EnumNode, coordinates: Coordinates):
-        if node_type not in [EnumNode.CORRIDOR_END, EnumNode.ELEVATOR_DOOR,
-                             EnumNode.RAMP_ENTRANCE, EnumNode.STAIRS_ENTRANCE]:
-            raise ValueError("Cant create a PseudoNode with type " + str(node_type)
-                             + ". Must be one of: " +
-                             str([EnumNode.CORRIDOR_END, EnumNode.ELEVATOR_DOOR,
-                                  EnumNode.RAMP_ENTRANCE, EnumNode.STAIRS_ENTRANCE]))
+        if node_type not in self.TYPES:
+            raise ValueError(f"Cant create a {type(self).__name__} with type {node_type}. Must be one of: {list(self.TYPES)}") # pylint: disable=line-too-long
         super().__init__(node_id, node_type, coordinates)
 
     def is_valid_destination(self, gender: EnumGender, accessibility: EnumAccessibility,
