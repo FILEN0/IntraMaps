@@ -29,13 +29,16 @@ class OpeningHours:
         '''Returns the time of the day when the place closes.'''
         return self.__closes_at
 
-    def is_open(self, at: time | None = None) -> bool:
+    def __contains__(self, moment: time) -> bool:
         '''Determines if the place is open at a time of the day.
 
         Args:
-            at: The time of the day to check. When it is not given, the time now.
+            moment: The time of the day to check.
         '''
-        moment = datetime.now().time() if at is None else at
         if self.__opens_at < self.__closes_at:
             return self.__opens_at <= moment < self.__closes_at
         return moment >= self.__opens_at or moment < self.__closes_at
+
+    def is_open(self) -> bool:
+        '''Determines if the place is open now.'''
+        return datetime.now().time() in self
