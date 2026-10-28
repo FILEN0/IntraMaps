@@ -95,11 +95,13 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
 
         Returns:
             STRAIGHT, SLIGHT_RIGHT, RIGHT, SHARP_RIGHT, BACK or the same three to the left.
-            It is None when either step changes floors, because there is no direction to compare.
+            It is None when either step changes floors or has no length, because there is no
+            direction to compare.
         '''
         if not isinstance(following, RouteStep):
             raise ValueError("following must be a RouteStep object")
-        if self.changes_floor or following.changes_floor:
+        if (self.changes_floor or following.changes_floor
+                or 0 in (self.geometry.length, following.geometry.length)):
             return None
         junction = self.points[-1]
         if following.points[0] != junction:
