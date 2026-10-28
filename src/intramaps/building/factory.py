@@ -1,5 +1,9 @@
 '''Building Models Factory. Parses database rows into objects.'''
 from datetime import time
+from intramaps.building.connections.connection import Connection
+from intramaps.building.connections.corridor import Corridor
+from intramaps.building.connections.elevator import Elevator
+from intramaps.building.connections.stairs import Stairs
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.nodes.floor_change_node import FloorChangeNode
 from intramaps.building.nodes.node import Node
@@ -13,7 +17,7 @@ from intramaps.building.nodes.physical.room import Room
 from intramaps.building.nodes.physical.study_space import StudySpace
 from intramaps.building.nodes.physical.washroom import Washroom
 from intramaps.building.opening_hours import OpeningHours
-from intramaps.enums.enum_building import EnumNode, EnumStatus
+from intramaps.enums.enum_building import EnumConnection, EnumNode, EnumStatus
 from intramaps.enums.enum_user import EnumGender, EnumRole
 
 PLACES_WITH_HOURS = {
@@ -70,3 +74,32 @@ def make_node(row) -> Node:
             return NAMED_PLACES[node_type](row["id"], coordinates, row["name"], status, role)
         case _:
             return Room(row["id"], coordinates, row["name"], row["number"], status, role)
+
+def make_connection(row, nodes: dict[int, Node], waypoints: list[tuple[float, float]],
+                    children: tuple[tuple[Node, float], ...]) -> Connection:
+    '''Parses row into specific connection.
+
+    Args:
+        row: A row of the connections table, readable by column name.
+        nodes: The nodes by id, used as the ends of the connection.
+        waypoints: The bends of the line as (x, y) pairs, in order from node_a to node_b.
+        children: The (node, position) pairs of the places along the connection.
+
+    Returns:
+        A Stairs, an Elevator or a Corridor. A ramp is a corridor, so it has no class of its own.
+    '''
+    connection_type = EnumConnection(row["type"])
+    node_a = nodes[row["node_a_id"]]
+    node_b = nodes[row["node_b_id"]]
+    points = tuple(Coordinates(x, y, node_a.coordinates.floor_id) for x, y in waypoints)
+    status = EnumStatus(row["status"])
+    match connection_type:
+        case EnumConnection.STAIRS:
+            return Stairs(row["id"], node_a, node_b, row["rise_m"], points, status)
+        case EnumConnection.ELEVATOR:
+            return Elevator(row["id"], node_a, node_b, row["rise_m"], row["wait_time_s"], status)
+        case EnumConnection.CORRIDOR:
+            return Corridor(row["id"], node_a, node_b, points, children, status,
+                            bool(row["accessible"]))
+        case _:
+            raise ValueError("a ramp is saved as a corridor")
