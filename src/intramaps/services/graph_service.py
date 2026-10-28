@@ -1,0 +1,85 @@
+'''GraphService class definition.'''
+from intramaps.building.geometry.coordinates import Coordinates
+from intramaps.building.geometry.geometry import Geometry
+from intramaps.building.nodes.node import Node
+from intramaps.building.nodes.pseudo_node import PseudoNode
+from intramaps.routing.node_locator import NodeLocator
+from intramaps.routing.route_step import RouteStep
+from intramaps.services.connection_service import ConnectionService
+from intramaps.users.user import User
+
+class GraphService:
+    '''Builds the graph of the building and finds the fastest way through it.
+
+    Args:
+        connection_service: The service that loads the connections of the building.
+    '''
+
+    def __init__(self, connection_service: ConnectionService) -> None:
+        self.__connection_service = connection_service
+
+    def find_path(self, origin: Node, destination: Node, user: User) -> list[Node]:
+        '''Finds the fastest way between two nodes, with an A* search.
+
+        Args:
+            origin: The node where the way begins.
+            destination: The node where the way ends.
+            user: The user the way is made for.
+
+        Returns:
+            The nodes in travel order, from the origin to the destination.
+        '''
+        raise NotImplementedError
+
+    def find_nearest_path(self, origin: Node, candidates: list[Node], user: User) -> list[Node]:
+        '''Finds the fastest way to the nearest of some places, with a Dijkstra search.
+
+        Args:
+            origin: The node where the way begins.
+            candidates: The places that can be the destination.
+            user: The user the way is made for.
+
+        Returns:
+            The nodes in travel order, from the origin to the nearest candidate.
+        '''
+        raise NotImplementedError
+
+    def make_steps(self, path: list[Node], speed: float) -> list[RouteStep]:
+        '''Turns the nodes of a way into the steps walked between each pair of them.
+
+        Args:
+            path: The nodes in travel order, as returned by find_path or find_nearest_path.
+            speed: Walking speed of the user, in meters per second.
+
+        Returns:
+            The steps in travel order, one for each pair of consecutive nodes.
+        '''
+        locator = NodeLocator(self.__connection_service.get_connections())
+        return [self.__make_step(locator, start, end, speed) for start, end in zip(path, path[1:])]
+
+    def __make_step(self, locator: NodeLocator, start: Node, end: Node, speed: float) -> RouteStep:
+        '''Builds the stretch between two nodes, with the walk from or to a room included.'''
+        connection = locator.connection_between(start, end)
+        begin = locator.position_along(connection, start)
+        finish = locator.position_along(connection, end)
+        seconds = abs(begin - finish) * connection.distance(speed)
+        if start.coordinates.floor_id != end.coordinates.floor_id:
+            points = [start.coordinates, end.coordinates]
+        else:
+            points = list(connection.geometry.points_between(begin, finish))
+            if not isinstance(start, PseudoNode):
+                seconds += start.coordinates.distance_to(points[0]) / speed
+                points.insert(0, start.coordinates)
+            if not isinstance(end, PseudoNode):
+                seconds += end.coordinates.distance_to(points[-1]) / speed
+                points.append(end.coordinates)
+            points = self.__remove_repeated_points(points)
+        return RouteStep(connection, start, end, Geometry(points), seconds)
+
+    def __remove_repeated_points(self, points: list[Coordinates]) -> list[Coordinates]:
+        '''Drops the points that repeat the one before, keeping at least two points.'''
+        kept = [points[0]]
+        for point in points[1:]:
+            if point.distance_to(kept[-1]) > 0:
+                kept.append(point)
+        return kept if len(kept) > 1 else [kept[0], kept[0]]
