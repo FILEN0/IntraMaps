@@ -36,7 +36,7 @@ class GraphService:
         connections = self.__connection_service.get_connections()
         locator = NodeLocator(connections)
         graph = nx.Graph()
-        travel_cost = TravelCost(user.speed, graph)
+        travel_cost = TravelCost(user.speed)
 
         # the ends of the connections that the user can walk, linked by those connections
         for connection in connections:
@@ -58,6 +58,9 @@ class GraphService:
         dict_places_walk = {}
         for place in places:
             corridor = locator.corridor_of(place)
+            if not graph.has_edge(corridor.node_a, corridor.node_b):
+                raise LookupError(f"node {place.id} is on a corridor that cannot be walked")
+
             position = locator.position_along(corridor, place)
             dict_places_position[place.id] = position
             dict_places_walk[place.id] = travel_cost.walk_seconds(
@@ -69,6 +72,16 @@ class GraphService:
                     corridor, position, locator.position_along(corridor, end))
                 graph.add_edge(place.id, end.id, connection=corridor,
                                weight=along + dict_places_walk[place.id])
+
+        # two places on the same corridor are also linked to each other
+        same_corridor = (len(places) == 2
+                         and locator.corridor_of(origin) == locator.corridor_of(destination))
+        if same_corridor:
+            corridor = locator.corridor_of(origin)
+            along = travel_cost.connection_seconds(
+                corridor, dict_places_position[origin], dict_places_position[destination])
+            walks = dict_places_walk[origin] + dict_places_walk[destination]
+            graph.add_edge(origin, destination, connection=corridor, weight=along + walks)
 
         # the fastest way between the origin and the destination
         try:
