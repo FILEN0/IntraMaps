@@ -1,4 +1,5 @@
 '''GraphService class definition.'''
+import networkx as nx
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.node import Node
@@ -19,8 +20,10 @@ class GraphService:
     def __init__(self, connection_service: ConnectionService) -> None:
         self.__connection_service = connection_service
 
-    def find_path(self, origin: Node, destination: Node, user: User) -> list[Node]:
+    def find_path(self, origin: Node, destination: Node, user: User) -> list[Node]: # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         '''Finds the fastest way between two nodes, with an A* search.
+
+        The search leaves out the connections and the ends that the user cannot use.
 
         Args:
             origin: The node where the way begins.
@@ -30,7 +33,50 @@ class GraphService:
         Returns:
             The nodes in travel order, from the origin to the destination.
         '''
-        raise NotImplementedError
+        connections = self.__connection_service.get_connections()
+        locator = NodeLocator(connections)
+        graph = nx.Graph()
+        travel_cost = TravelCost(user.speed, graph)
+
+        # the ends of the connections that the user can walk, linked by those connections
+        for connection in connections:
+            if not connection.is_usable_by(user):
+                continue
+            ends = (connection.node_a, connection.node_b)
+            for end in ends:
+                graph.add_node(end.id, node=end)
+            graph.add_edge(connection.node_a.id, connection.node_b.id, connection=connection,
+                           weight=travel_cost.connection_seconds(connection, 0.0, 1.0))
+
+        # the origin and the destination, when places, are linked to the ends of their corridor
+        places = []
+        for node in (origin, destination):
+            if node.id not in graph:
+                places.append(node)
+
+        dict_places_position = {}
+        dict_places_walk = {}
+        for place in places:
+            corridor = locator.corridor_of(place)
+            position = locator.position_along(corridor, place)
+            dict_places_position[place.id] = position
+            dict_places_walk[place.id] = travel_cost.walk_seconds(
+                place.coordinates, corridor.geometry.point_at(position))
+
+            graph.add_node(place.id, node=place)
+            for end in (corridor.node_a, corridor.node_b):
+                along = travel_cost.connection_seconds(
+                    corridor, position, locator.position_along(corridor, end))
+                graph.add_edge(place.id, end.id, connection=corridor,
+                               weight=along + dict_places_walk[place.id])
+
+        # the fastest way between the origin and the destination
+        try:
+            path = nx.astar_path(graph, origin.id, destination.id,
+                                 heuristic=travel_cost.heuristic, weight="weight")
+        except nx.NetworkXNoPath as error:
+            raise LookupError(f"there is no way from {origin.id} to {destination.id}") from error
+        return [graph.nodes[node_id]["node"] for node_id in path]
 
     def find_nearest_path(self, origin: Node, candidates: list[Node], user: User) -> list[Node]:
         '''Finds the fastest way to the nearest of some places, with a Dijkstra search.

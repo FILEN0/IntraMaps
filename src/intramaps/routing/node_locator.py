@@ -19,6 +19,16 @@ class NodeLocator:
                 self.__dict_places_corridor[child.id] = connection
                 self.__dict_places_position[child.id] = position
 
+    def corridor_of(self, place: Node) -> Connection:
+        '''Finds the corridor that a place is on.
+
+        Args:
+            place: A node that is not an end of a corridor, like a room.
+        '''
+        if place.id not in self.__dict_places_corridor:
+            raise LookupError(f"node {place.id} is not a place on a corridor")
+        return self.__dict_places_corridor[place.id]
+
     def connection_between(self, start: Node, end: Node) -> Connection:
         '''Finds the connection that links two nodes: the one a place is on, or the one they end.
 

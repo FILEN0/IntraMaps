@@ -4,7 +4,8 @@ from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.pseudo_node import PseudoNode
 from intramaps.enums.enum_building import EnumConnection, EnumStatus
-from intramaps.enums.enum_user import EnumAccessibility
+from intramaps.enums.enum_user import EnumAccessibility, EnumRole
+from intramaps.users.user import User
 
 class Connection(ABC):
     '''A link between two pseudo nodes.
@@ -84,13 +85,24 @@ class Connection(ABC):
         '''Returns whether people with accessibility needs can use the connection.'''
         return self.__accessible
 
-    def is_usable_by(self, accessibility: EnumAccessibility) -> bool:
-        '''Determines if a person with this accessibility need can use the connection.
+    def is_usable_by(self, user: User) -> bool:
+        '''Determines if a user can walk the connection.
+
+        The connection must be accessible when the user has an accessibility need, and its ends
+        must not be above the role of the user. Only staff can walk a connection, or go through
+        an end, that is in maintenance or closed.
 
         Args:
-            accessibility: The accessibility needs of the user.
+            user: The user who wants to walk the connection.
         '''
-        return accessibility == EnumAccessibility.NONE or self.accessible
+        ends = (self.node_a, self.node_b)
+        if not self.accessible and user.accessibility != EnumAccessibility.NONE:
+            return False
+        if any(end.role_restriction.value > user.role.value for end in ends):
+            return False
+        if user.role == EnumRole.STAFF:
+            return True
+        return all(part.status == EnumStatus.OK for part in (self, *ends))
 
     def distance(self, speed: float) -> float:
         '''Returns the distance of the connection, measured in time (seconds).
