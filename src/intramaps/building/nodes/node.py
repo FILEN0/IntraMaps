@@ -75,3 +75,12 @@ class Node(ABC):
         if user.role.value < self.role_restriction.value:
             return False
         return self.status == EnumStatus.OK or user.role == EnumRole.STAFF
+
+    def __eq__(self, other: object) -> bool:
+        '''Two nodes are equal when they have the same id.'''
+        if not isinstance(other, Node):
+            raise ValueError("other must be a Node object")
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)

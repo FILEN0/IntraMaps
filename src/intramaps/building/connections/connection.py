@@ -119,3 +119,12 @@ class Connection(ABC):
     @abstractmethod
     def _distance(self, speed: float) -> float:
         '''Returns the distance in seconds for a valid speed. Each connection type implements it.'''
+
+    def __eq__(self, other: object) -> bool:
+        '''Two connections are equal when they have the same id.'''
+        if not isinstance(other, Connection):
+            raise ValueError("other must be a Connection object")
+        return self.id == other.id
+
+    def __hash__(self) -> int:
+        return hash(self.id)

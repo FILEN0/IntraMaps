@@ -42,16 +42,13 @@ class GraphService:
         for connection in connections:
             if not connection.is_usable_by(user):
                 continue
-            ends = (connection.node_a, connection.node_b)
-            for end in ends:
-                graph.add_node(end.id, node=end)
-            graph.add_edge(connection.node_a.id, connection.node_b.id, connection=connection,
+            graph.add_edge(connection.node_a, connection.node_b, connection=connection,
                            weight=travel_cost.connection_seconds(connection, 0.0, 1.0))
 
         # the origin and the destination, when places, are linked to the ends of their corridor
         places = []
         for node in (origin, destination):
-            if node.id not in graph:
+            if node not in graph:
                 places.append(node)
 
         dict_places_position = {}
@@ -62,16 +59,15 @@ class GraphService:
                 raise LookupError(f"node {place.id} is on a corridor that cannot be walked")
 
             position = locator.position_along(corridor, place)
-            dict_places_position[place.id] = position
-            dict_places_walk[place.id] = travel_cost.walk_seconds(
+            dict_places_position[place] = position
+            dict_places_walk[place] = travel_cost.walk_seconds(
                 place.coordinates, corridor.geometry.point_at(position))
 
-            graph.add_node(place.id, node=place)
             for end in (corridor.node_a, corridor.node_b):
                 along = travel_cost.connection_seconds(
                     corridor, position, locator.position_along(corridor, end))
-                graph.add_edge(place.id, end.id, connection=corridor,
-                               weight=along + dict_places_walk[place.id])
+                graph.add_edge(place, end, connection=corridor,
+                               weight=along + dict_places_walk[place])
 
         # two places on the same corridor are also linked to each other
         same_corridor = (len(places) == 2
@@ -85,11 +81,10 @@ class GraphService:
 
         # the fastest way between the origin and the destination
         try:
-            path = nx.astar_path(graph, origin.id, destination.id,
+            return nx.astar_path(graph, origin, destination,
                                  heuristic=travel_cost.heuristic, weight="weight")
         except nx.NetworkXNoPath as error:
             raise LookupError(f"there is no way from {origin.id} to {destination.id}") from error
-        return [graph.nodes[node_id]["node"] for node_id in path]
 
     def find_nearest_path(self, origin: Node, candidates: list[Node], user: User) -> list[Node]:
         '''Finds the fastest way to the nearest of some places, with a Dijkstra search.

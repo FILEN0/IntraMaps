@@ -35,7 +35,7 @@ class Corridor(Connection):
                 raise ValueError("waypoints must be on the same floor as the corridor")
 
     def __check_children(self, children, floor_id: int) -> None:
-        ids = set()
+        seen = set()
         for child, position in children:
             if not isinstance(child, Node) or isinstance(child, PseudoNode):
                 raise ValueError("children must be nodes that are not PseudoNodes")
@@ -45,9 +45,9 @@ class Corridor(Connection):
                 raise ValueError("position must be a number")
             if not 0 <= position <= 1:
                 raise ValueError("position must be between 0 and 1")
-            if child.id in ids:
+            if child in seen:
                 raise ValueError("a node cannot be a child twice")
-            ids.add(child.id)
+            seen.add(child)
 
     @property
     def children(self) -> tuple[tuple[Node, float], ...]:
@@ -75,11 +75,11 @@ class Corridor(Connection):
             ValueError: If child is not a child of this corridor, end is not one of its ends,
                 or speed is not a positive number.
         '''
-        position = next((pos for node, pos in self.__children if node.id == child.id), None)
+        position = next((pos for node, pos in self.__children if node == child), None)
         if position is None:
             raise ValueError("the node is not a child of this corridor")
-        if end.id == self.node_a.id:
+        if end == self.node_a:
             return self.distance(speed) * position
-        if end.id == self.node_b.id:
+        if end == self.node_b:
             return self.distance(speed) * (1 - position)
         raise ValueError("end must be one of the ends of this corridor")
