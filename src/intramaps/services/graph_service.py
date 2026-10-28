@@ -5,6 +5,7 @@ from intramaps.building.nodes.node import Node
 from intramaps.building.nodes.pseudo_node import PseudoNode
 from intramaps.routing.node_locator import NodeLocator
 from intramaps.routing.route_step import RouteStep
+from intramaps.routing.travel_cost import TravelCost
 from intramaps.services.connection_service import ConnectionService
 from intramaps.users.user import User
 
@@ -55,23 +56,26 @@ class GraphService:
             The steps in travel order, one for each pair of consecutive nodes.
         '''
         locator = NodeLocator(self.__connection_service.get_connections())
-        return [self.__make_step(locator, start, end, speed) for start, end in zip(path, path[1:])]
+        travel_cost = TravelCost(speed)
+        return [self.__make_step(locator, travel_cost, start, end)
+                for start, end in zip(path, path[1:])]
 
-    def __make_step(self, locator: NodeLocator, start: Node, end: Node, speed: float) -> RouteStep:
+    def __make_step(self, locator: NodeLocator, travel_cost: TravelCost, start: Node,
+                    end: Node) -> RouteStep:
         '''Builds the stretch between two nodes, with the walk from or to a room included.'''
         connection = locator.connection_between(start, end)
         begin = locator.position_along(connection, start)
         finish = locator.position_along(connection, end)
-        seconds = abs(begin - finish) * connection.distance(speed)
+        seconds = travel_cost.connection_seconds(connection, begin, finish)
         if start.coordinates.floor_id != end.coordinates.floor_id:
             points = [start.coordinates, end.coordinates]
         else:
             points = list(connection.geometry.points_between(begin, finish))
             if not isinstance(start, PseudoNode):
-                seconds += start.coordinates.distance_to(points[0]) / speed
+                seconds += travel_cost.walk_seconds(start.coordinates, points[0])
                 points.insert(0, start.coordinates)
             if not isinstance(end, PseudoNode):
-                seconds += end.coordinates.distance_to(points[-1]) / speed
+                seconds += travel_cost.walk_seconds(end.coordinates, points[-1])
                 points.append(end.coordinates)
             points = self.__remove_repeated_points(points)
         return RouteStep(connection, start, end, Geometry(points), seconds)
