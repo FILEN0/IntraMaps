@@ -39,11 +39,11 @@
     {"id": 29, "type": 9, "floor_id": 1, "x": 2902, "y": 2216},
     {"id": 30, "type": 9, "floor_id": 1, "x": 3615, "y": 1428},
     {"id": 31, "type": 9, "floor_id": 1, "x": 3777, "y": 1428},
-    {"id": 32, "type": 10, "floor_id": 1, "x": 2431, "y": 1129},
+    {"id": 32, "type": 9, "floor_id": 1, "x": 2418, "y": 1129},
     {"id": 33, "type": 9, "floor_id": 1, "x": 2502, "y": 1129},
     {"id": 34, "type": 9, "floor_id": 1, "x": 2116, "y": 1827},
-    {"id": 35, "type": 9, "floor_id": 1, "x": 2116, "y": 1990},
-    {"id": 36, "type": 10, "floor_id": 1, "x": 2444, "y": 967},
+    {"id": 35, "type": 9, "floor_id": 1, "x": 2097, "y": 1956},
+    {"id": 36, "type": 10, "floor_id": 1, "x": 2456, "y": 982},
     {"id": 37, "type": 10, "floor_id": 1, "x": 1807, "y": 1471},
     {"id": 38, "type": 10, "floor_id": 1, "x": 2018, "y": 1471},
     {"id": 39, "type": 10, "floor_id": 1, "x": 1662, "y": 1129},
@@ -90,11 +90,11 @@
     {"id": 80, "type": 1, "number": "1035", "floor_id": 1, "x": 1804, "y": 1104},
     {"id": 81, "type": 1, "number": "1036", "floor_id": 1, "x": 1753, "y": 1104},
     {"id": 82, "type": 1, "number": "1037", "floor_id": 1, "x": 1573, "y": 1104},
-    {"id": 83, "type": 1, "number": "1046", "floor_id": 1, "x": 1670, "y": 1741},
+    {"id": 83, "type": 1, "number": "1046", "floor_id": 1, "x": 1658, "y": 1741},
     {"id": 84, "type": 1, "number": "1047", "floor_id": 1, "x": 1753, "y": 1853},
     {"id": 85, "type": 1, "number": "1048", "floor_id": 1, "x": 1776, "y": 1853},
     {"id": 86, "type": 1, "number": "1049", "floor_id": 1, "x": 1863, "y": 1853},
-    {"id": 87, "type": 1, "name": "Anfiteatro Bola do ICEx", "floor_id": 1, "x": 1746, "y": 1471},
+    {"id": 87, "type": 1, "name": "Anfiteatro", "floor_id": 1, "x": 1746, "y": 1471},
     {"id": 88, "type": 1, "name": "Auditório 1", "floor_id": 1, "x": 1541, "y": 1268},
     {"id": 89, "type": 1, "name": "Auditório 2", "floor_id": 1, "x": 1541, "y": 1497},
     {"id": 90, "type": 6, "name": "Entrada Principal", "floor_id": 1, "x": 2116, "y": 1968},
@@ -129,12 +129,12 @@
     {"id": 119, "type": 9, "floor_id": 2, "x": 410, "y": 632},
     {"id": 120, "type": 9, "floor_id": 2, "x": 1362, "y": 568},
     {"id": 121, "type": 9, "floor_id": 2, "x": 804, "y": 1116},
-    {"id": 122, "type": 9, "floor_id": 2, "x": 410, "y": 1116},
+    {"id": 122, "type": 9, "floor_id": 2, "x": 545, "y": 1116},
     {"id": 123, "type": 9, "floor_id": 2, "x": 560, "y": 1116},
     {"id": 124, "type": 9, "floor_id": 2, "x": 926, "y": 1116},
     {"id": 125, "type": 9, "floor_id": 2, "x": 560, "y": 1534},
     {"id": 126, "type": 9, "floor_id": 2, "x": 926, "y": 1534},
-    {"id": 127, "type": 9, "floor_id": 2, "x": 250, "y": 1534},
+    {"id": 127, "type": 9, "floor_id": 2, "x": 270, "y": 1534},
     {"id": 128, "type": 1, "number": "2001", "floor_id": 2, "x": 2592, "y": 1174},
     {"id": 129, "type": 1, "number": "2002", "floor_id": 2, "x": 2592, "y": 1244},
     {"id": 130, "type": 1, "number": "2003", "floor_id": 2, "x": 2592, "y": 1340},
@@ -212,7 +212,7 @@
     {"id": 202, "type": 1, "number": "2077", "floor_id": 2, "x": 2330, "y": 1864},
     {"id": 203, "type": 1, "name": "Auditório 1", "floor_id": 2, "x": 1190, "y": 1136},
     {"id": 204, "type": 1, "name": "Auditório 2", "floor_id": 2, "x": 1190, "y": 1514},
-    {"id": 205, "type": 1, "name": "Auditório 3", "floor_id": 2, "x": 238, "y": 1524},
+    {"id": 205, "type": 1, "name": "Auditório 3", "floor_id": 2, "x": 238, "y": 1534},
     {"id": 206, "type": 5, "name": "Cantina", "floor_id": 2, "x": 1590, "y": 1080},
     {"id": 207, "type": 1, "name": "DCC", "floor_id": 2, "x": 1664, "y": 1860},
     {"id": 208, "type": 2, "name": "Sanitário Feminino (vão B)", "floor_id": 2, "x": 2916, "y": 1776, "gender_restriction": 2, "status": 0},
@@ -224,7 +224,14 @@
     {"id": 214, "type": 2, "name": "Sanitário Feminino (centro-oeste)", "floor_id": 2, "x": 878, "y": 1096, "gender_restriction": 2, "status": 0},
     {"id": 215, "type": 2, "name": "Sanitário Masculino (centro-oeste)", "floor_id": 2, "x": 846, "y": 1096, "gender_restriction": 1, "status": 0},
     {"id": 216, "type": 2, "name": "Sanitário Feminino (sul)", "floor_id": 2, "x": 1562, "y": 1580, "gender_restriction": 2, "status": 0},
-    {"id": 217, "type": 2, "name": "Sanitário Masculino (sul)", "floor_id": 2, "x": 1598, "y": 1580, "gender_restriction": 1, "status": 0}
+    {"id": 217, "type": 2, "name": "Sanitário Masculino (sul)", "floor_id": 2, "x": 1598, "y": 1580, "gender_restriction": 1, "status": 0},
+    {"id": 218, "type": 9, "floor_id": 2, "x": 1592, "y": 1100},
+    {"id": 219, "type": 9, "floor_id": 1, "x": 2010, "y": 1827},
+    {"id": 220, "type": 9, "floor_id": 1, "x": 2010, "y": 1901},
+    {"id": 222, "type": 9, "floor_id": 1, "x": 2418, "y": 1068},
+    {"id": 223, "type": 10, "floor_id": 1, "x": 2426, "y": 1051},
+    {"id": 224, "type": 9, "floor_id": 1, "x": 2502, "y": 1110},
+    {"id": 225, "type": 1, "floor_id": 1, "x": 2418, "y": 1068, "name": "Portaria Secundária"}
   ],
   "connections": [
     {"id": 1, "type": 0, "from": 1, "to": 2, "waypoints": [],
@@ -238,7 +245,7 @@
      ]},
     {"id": 3, "type": 0, "from": 3, "to": 32, "waypoints": [],
      "children": [
-       {"node": 72, "position": 0.7975}
+       {"node": 72, "position": 0.8631}
      ]},
     {"id": 4, "type": 0, "from": 5, "to": 33, "waypoints": [], "children": []},
     {"id": 5, "type": 0, "from": 5, "to": 6, "waypoints": [],
@@ -362,20 +369,16 @@
      ]},
     {"id": 44, "type": 0, "from": 4, "to": 32, "waypoints": [], "children": []},
     {"id": 45, "type": 0, "from": 4, "to": 33, "waypoints": [], "children": []},
-    {"id": 46, "type": 0, "from": 34, "to": 35, "waypoints": [],
-     "children": [
-       {"node": 90, "position": 0.8667}
-     ]},
     {"id": 47, "type": 0, "from": 17, "to": 34, "waypoints": [], "children": []},
-    {"id": 48, "type": 0, "from": 33, "to": 36, "waypoints": [[2502, 967]],
+    {"id": 48, "type": 0, "from": 36, "to": 224, "waypoints": [[2502, 982]],
      "children": [
-       {"node": 91, "position": 0.9023}
+       {"node": 91, "position": 0.0575}
      ]},
     {"id": 49, "type": 0, "from": 15, "to": 38, "waypoints": [], "children": []},
     {"id": 50, "type": 0, "from": 39, "to": 40, "waypoints": [], "children": []},
     {"id": 51, "type": 0, "from": 11, "to": 41, "waypoints": [], "children": []},
-    {"id": 52, "type": 0, "from": 38, "to": 42, "waypoints": [[2022, 1470], [2014, 1412], [1992, 1359], [1957, 1312], [1911, 1277], [1857, 1255]], "children": []},
-    {"id": 53, "type": 0, "from": 38, "to": 43, "waypoints": [[2022, 1470], [2014, 1527], [1992, 1581], [1957, 1627], [1911, 1663], [1857, 1685]], "children": []},
+    {"id": 52, "type": 0, "from": 38, "to": 42, "waypoints": [[2014, 1412], [1992, 1359], [1957, 1312], [1911, 1277], [1857, 1255]], "children": []},
+    {"id": 53, "type": 0, "from": 38, "to": 43, "waypoints": [[2014, 1527], [1992, 1581], [1957, 1627], [1911, 1663], [1857, 1685]], "children": []},
     {"id": 54, "type": 0, "from": 3, "to": 44, "waypoints": [],
      "children": [
        {"node": 73, "position": 0.2549},
@@ -388,13 +391,9 @@
      ]},
     {"id": 55, "type": 0, "from": 42, "to": 44, "waypoints": [], "children": []},
     {"id": 56, "type": 0, "from": 43, "to": 45, "waypoints": [[1825, 1715], [1842, 1712], [1859, 1709], [1859, 1760]], "children": []},
-    {"id": 57, "type": 0, "from": 34, "to": 45, "waypoints": [],
-     "children": [
-       {"node": 92, "position": 0.4128},
-       {"node": 86, "position": 0.9857}
-     ]},
+    {"id": 57, "type": 0, "from": 34, "to": 219, "waypoints": [], "children": []},
     {"id": 58, "type": 0, "from": 40, "to": 41, "waypoints": [[1677, 1160], [1677, 1272]], "children": []},
-    {"id": 59, "type": 1, "from": 32, "to": 36, "waypoints": [[2438, 1052]]},
+    {"id": 59, "type": 1, "from": 36, "to": 223, "waypoints": []},
     {"id": 60, "type": 1, "from": 37, "to": 38, "waypoints": []},
     {"id": 61, "type": 1, "from": 2, "to": 39, "waypoints": []},
     {"id": 62, "type": 1, "from": 37, "to": 42, "waypoints": [[1811, 1398]]},
@@ -522,7 +521,7 @@
      ]},
     {"id": 86, "type": 0, "from": 122, "to": 123, "waypoints": [],
      "children": [
-       {"node": 187, "position": 0.8}
+       {"node": 187, "position": 0.0}
      ]},
     {"id": 87, "type": 0, "from": 121, "to": 123, "waypoints": [],
      "children": [
@@ -555,7 +554,7 @@
     {"id": 92, "type": 0, "from": 125, "to": 127, "waypoints": [],
      "children": [
        {"node": 191, "position": 0.0},
-       {"node": 190, "position": 0.6129},
+       {"node": 190, "position": 0.6552},
        {"node": 205, "position": 1.0}
      ]},
     {"id": 93, "type": 0, "from": 125, "to": 126, "waypoints": [],
@@ -573,16 +572,35 @@
        {"node": 194, "position": 0.8228},
        {"node": 193, "position": 0.961}
      ]},
-    {"id": 95, "type": 0, "from": 101, "to": 113, "waypoints": [],
-     "children": [
-       {"node": 206, "position": 0.0}
-     ]},
+    {"id": 95, "type": 0, "from": 101, "to": 113, "waypoints": [], "children": []},
     {"id": 96, "type": 2, "from": 6, "to": 104, "wait_seconds": null, "seconds_per_floor": null},
     {"id": 97, "type": 2, "from": 18, "to": 111, "wait_seconds": null, "seconds_per_floor": null},
     {"id": 98, "type": 1, "from": 4, "to": 102},
     {"id": 99, "type": 1, "from": 9, "to": 106},
     {"id": 100, "type": 1, "from": 16, "to": 112},
     {"id": 101, "type": 1, "from": 21, "to": 109},
-    {"id": 102, "type": 1, "from": 24, "to": 107}
+    {"id": 102, "type": 1, "from": 24, "to": 107},
+    {"id": 103, "type": 0, "from": 101, "to": 218, "waypoints": [],
+     "children": [
+       {"node": 206, "position": 1.0}
+     ]},
+    {"id": 104, "type": 0, "from": 35, "to": 220, "waypoints": [],
+     "children": [
+       {"node": 90, "position": 0.0}
+     ]},
+    {"id": 105, "type": 0, "from": 45, "to": 219, "waypoints": [],
+     "children": [
+       {"node": 86, "position": 0.0238}
+     ]},
+    {"id": 106, "type": 0, "from": 219, "to": 220, "waypoints": [],
+     "children": [
+       {"node": 92, "position": 1.0}
+     ]},
+    {"id": 112, "type": 0, "from": 32, "to": 222, "waypoints": [],
+     "children": [
+       {"node": 225, "position": 1.0}
+     ]},
+    {"id": 113, "type": 0, "from": 222, "to": 223, "waypoints": [], "children": []},
+    {"id": 114, "type": 0, "from": 222, "to": 224, "waypoints": [], "children": []}
   ]
 }
