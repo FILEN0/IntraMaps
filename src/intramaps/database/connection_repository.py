@@ -1,5 +1,6 @@
 '''ConnectionRepository class definition.'''
 from collections import defaultdict
+from intramaps.building.connections.connection import Connection
 from intramaps.building.connections.corridor import Corridor
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.nodes.node import Node
@@ -12,30 +13,31 @@ class ConnectionRepository:
     def __init__(self, conn: Database) -> None:
         self.__connection = conn
 
-    def add(self, corridor: Corridor) -> None:
-        '''Saves a corridor with its waypoints and children.
+    def add(self, connection: Connection) -> None:
+        '''Saves a connection with its waypoints and, when it has them, its children.
 
         The two ends and every child must already be saved in the nodes table.
 
         Args:
-            corridor: The corridor to save.
+            connection: The connection to save.
         '''
-        if not isinstance(corridor, Corridor):
-            raise ValueError("only corridors can be saved for now")
+        if not isinstance(connection, Connection):
+            raise ValueError("connection must be an instance of Connection")
         self.__connection.execute(
-            "INSERT INTO connections (id, type, node_a_id, node_b_id, status, accessible) VALUES (?, ?, ?, ?, ?, 1)", # pylint: disable=line-too-long
-            (corridor.id, corridor.type.value, corridor.node_a.id, corridor.node_b.id,
-             corridor.status.value),
+            "INSERT INTO connections (id, type, node_a_id, node_b_id, status, accessible, rise_m, wait_time_s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
+            (connection.id, connection.type.value, connection.node_a.id, connection.node_b.id,
+             connection.status.value, int(connection.accessible),
+             getattr(connection, "rise_m", 0), getattr(connection, "wait_time_s", 0)),
         )
-        for order, point in enumerate(corridor.waypoints, start=1):
+        for order, point in enumerate(connection.waypoints, start=1):
             self.__connection.execute(
                 "INSERT INTO connection_waypoints (connection_id, waypoint_order, x, y) VALUES (?, ?, ?, ?)", # pylint: disable=line-too-long
-                (corridor.id, order, point.x, point.y),
+                (connection.id, order, point.x, point.y),
             )
-        for child, position in corridor.children:
+        for child, position in getattr(connection, "children", ()):
             self.__connection.execute(
                 "INSERT INTO connection_children (node_id, connection_id, position) VALUES (?, ?, ?)", # pylint: disable=line-too-long
-                (child.id, corridor.id, position),
+                (child.id, connection.id, position),
             )
 
     def list_all(self, nodes: dict[int, Node]) -> list[Corridor]:
@@ -51,7 +53,7 @@ class ConnectionRepository:
         children = self.__load_children(nodes)
         corridors = []
         rows = self.__connection.fetch(
-            "SELECT id, type, node_a_id, node_b_id, status FROM connections ORDER BY id"
+            "SELECT id, type, node_a_id, node_b_id, status, accessible FROM connections ORDER BY id"
         )
         for row in rows:
             if EnumConnection(row["type"]) != EnumConnection.CORRIDOR:
@@ -60,7 +62,8 @@ class ConnectionRepository:
             points = tuple(Coordinates(x, y, node_a.coordinates.floor_id)
                            for x, y in waypoints[row["id"]])
             corridors.append(Corridor(row["id"], node_a, nodes[row["node_b_id"]], points,
-                                      tuple(children[row["id"]]), EnumStatus(row["status"])))
+                                      tuple(children[row["id"]]), EnumStatus(row["status"]),
+                                      bool(row["accessible"])))
         return corridors
 
     def __load_waypoints(self) -> dict:

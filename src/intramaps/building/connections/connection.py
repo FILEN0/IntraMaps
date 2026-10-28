@@ -4,6 +4,7 @@ from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.pseudo_node import PseudoNode
 from intramaps.enums.enum_building import EnumConnection, EnumStatus
+from intramaps.enums.enum_user import EnumAccessibility
 
 class Connection(ABC):
     '''A link between two pseudo nodes.
@@ -16,11 +17,13 @@ class Connection(ABC):
         geometry: The line of the connection, from node_a through the waypoints to node_b.
         waypoints: The bends of the line between the two ends, in order from node_a to node_b.
         status: Whether the connection can be used, defined by EnumStatus.
+        accessible: Whether people with accessibility needs, like a wheelchair, can use it.
     '''
 
     def __init__(self, connection_id: int, connection_type: EnumConnection, # pylint: disable=too-many-arguments,too-many-positional-arguments
                  node_a: PseudoNode, node_b: PseudoNode,
-                 waypoints: tuple[Coordinates, ...] = (), status: EnumStatus = EnumStatus.OK):
+                 waypoints: tuple[Coordinates, ...] = (), status: EnumStatus = EnumStatus.OK,
+                 accessible: bool = True):
         if not isinstance(connection_id, int):
             raise ValueError("id must be an integer")
         if not isinstance(connection_type, EnumConnection):
@@ -31,11 +34,14 @@ class Connection(ABC):
             raise ValueError("node_a id must be smaller than node_b id")
         if not isinstance(status, EnumStatus):
             raise ValueError("status must be an instance of EnumStatus")
+        if not isinstance(accessible, bool):
+            raise ValueError("accessible must be a boolean")
         self.__id = connection_id
         self.__type = connection_type
         self.__node_a = node_a
         self.__node_b = node_b
         self.__status = status
+        self.__accessible = accessible
         self.__geometry = Geometry((node_a.coordinates, *waypoints, node_b.coordinates))
 
     @property
@@ -72,6 +78,19 @@ class Connection(ABC):
     def status(self) -> EnumStatus:
         '''Returns the status of the connection.'''
         return self.__status
+
+    @property
+    def accessible(self) -> bool:
+        '''Returns whether people with accessibility needs can use the connection.'''
+        return self.__accessible
+
+    def is_usable_by(self, accessibility: EnumAccessibility) -> bool:
+        '''Determines if a person with this accessibility need can use the connection.
+
+        Args:
+            accessibility: The accessibility needs of the user.
+        '''
+        return accessibility == EnumAccessibility.NONE or self.accessible
 
     def distance(self, speed: float) -> float:
         '''Returns the distance of the connection, measured in time (seconds).

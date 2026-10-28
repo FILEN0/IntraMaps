@@ -17,8 +17,9 @@ class Corridor(Connection):
     def __init__(self, connection_id: int, node_a: PseudoNode, node_b: PseudoNode, # pylint: disable=too-many-arguments,too-many-positional-arguments
                  waypoints: tuple[Coordinates, ...] = (),
                  children: tuple[tuple[Node, float], ...] = (),
-                 status: EnumStatus = EnumStatus.OK):
-        super().__init__(connection_id, EnumConnection.CORRIDOR, node_a, node_b, waypoints, status)
+                 status: EnumStatus = EnumStatus.OK, accessible: bool = True):
+        super().__init__(connection_id, EnumConnection.CORRIDOR, node_a, node_b, waypoints,
+                         status, accessible)
         floor_id = node_a.coordinates.floor_id
         if node_b.coordinates.floor_id != floor_id:
             raise ValueError("a corridor cannot change floors")
