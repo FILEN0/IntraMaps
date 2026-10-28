@@ -82,7 +82,7 @@ class RouteService:
         nodes_by_id = self.__node_service.get_nodes()
         origin = self.__find(nodes_by_id, origin_id)
         destination = self.__find(nodes_by_id, destination_id)
-        if not destination.is_valid_destination(user.gender, user.accessibility, user.role):
+        if not destination.is_valid_destination(user):
             raise PermissionError(f"node {destination_id} is not a valid destination for this user")
         return self.__graph_service.find_path(origin, destination, user)
 
@@ -90,7 +90,7 @@ class RouteService:
         '''Checks the request and finds the nodes of the way to the nearest valid place.'''
         origin = self.__find(self.__node_service.get_nodes(), origin_id)
         places = [place for place in self.__node_service.find_places(node_type=node_type)
-                  if place.is_valid_destination(user.gender, user.accessibility, user.role)]
+                  if place.is_valid_destination(user)]
         return self.__graph_service.find_nearest_path(origin, places, user)
 
     def __find(self, nodes_by_id: dict[int, Node], node_id: int) -> Node:
