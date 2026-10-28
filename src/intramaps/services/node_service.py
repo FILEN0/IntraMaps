@@ -8,11 +8,11 @@ class NodeService:
     '''Loads and searches the nodes of the building.
 
     Args:
-        nodes: The repository of nodes.
+        node_repository: The repository of nodes.
     '''
 
-    def __init__(self, nodes: NodeRepository) -> None:
-        self.__nodes = nodes
+    def __init__(self, node_repository: NodeRepository) -> None:
+        self.__node_repository = node_repository
 
     def get_nodes(self) -> dict[int, Node]:
         '''Loads every node.
@@ -20,7 +20,7 @@ class NodeService:
         Returns:
             The nodes by id.
         '''
-        return {node.id: node for node in self.__nodes.list_all()}
+        return {node.id: node for node in self.__node_repository.list_all()}
 
     def find_places(self, text: str | None = None, node_type: EnumNode | None = None,
                     floor_id: int | None = None) -> list[Node]:
@@ -34,7 +34,7 @@ class NodeService:
         Returns:
             The places ordered by id.
         '''
-        places = [node for node in self.__nodes.list_all(floor_id, node_type)
+        places = [node for node in self.__node_repository.list_all(floor_id, node_type)
                   if not isinstance(node, PseudoNode)]
         if text is None:
             return places
