@@ -170,6 +170,18 @@ class GraphService:
         print(dict_places_position)
         print(dict_places_walk)
 
+        # a goal on the same corridor as the origin is also linked to the origin
+        if origin in dict_places_position:
+            corridor = locator.corridor_of(origin)
+            for goal in goals:
+                if goal in dict_places_position and locator.corridor_of(goal) == corridor:
+                    along = travel_cost.connection_seconds(
+                        corridor, dict_places_position[origin], dict_places_position[goal])
+                    walks = dict_places_walk[origin] + dict_places_walk[goal]
+                    print(along)
+                    print(walks)
+                    graph.add_edge(origin, goal, connection=corridor, weight=along + walks)
+
         # the goals that were linked to the graph, which leaves out the ones on a closed corridor
         linked_goals = []
         for goal in goals:
