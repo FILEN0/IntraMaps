@@ -44,30 +44,38 @@ class GraphService:
                 continue
             graph.add_edge(connection.node_a, connection.node_b, connection=connection,
                            weight=travel_cost.connection_seconds(connection, 0.0, 1.0))
+        print(graph)
 
         # the origin and the destination, when places, are linked to the ends of their corridor
         places = []
         for node in (origin, destination):
             if node not in graph:
                 places.append(node)
+        print(places)
 
         dict_places_position = {}
         dict_places_walk = {}
         for place in places:
             corridor = locator.corridor_of(place)
+            print(corridor)
             if not graph.has_edge(corridor.node_a, corridor.node_b):
                 raise LookupError(f"node {place.id} is on a corridor that cannot be walked")
 
             position = locator.position_along(corridor, place)
+            print(position)
             dict_places_position[place] = position
             dict_places_walk[place] = travel_cost.walk_seconds(
                 place.coordinates, corridor.geometry.point_at(position))
+            print(dict_places_walk[place])
 
             for end in (corridor.node_a, corridor.node_b):
                 along = travel_cost.connection_seconds(
                     corridor, position, locator.position_along(corridor, end))
+                print(along)
                 graph.add_edge(place, end, connection=corridor,
                                weight=along + dict_places_walk[place])
+        print(dict_places_position)
+        print(dict_places_walk)
 
         # two places on the same corridor are also linked to each other
         same_corridor = (len(places) == 2
@@ -77,17 +85,28 @@ class GraphService:
             along = travel_cost.connection_seconds(
                 corridor, dict_places_position[origin], dict_places_position[destination])
             walks = dict_places_walk[origin] + dict_places_walk[destination]
+            print(along)
+            print(walks)
             graph.add_edge(origin, destination, connection=corridor, weight=along + walks)
 
         # the fastest way between the origin and the destination
         try:
-            return nx.astar_path(graph, origin, destination,
+            path = nx.astar_path(graph, origin, destination,
                                  heuristic=travel_cost.heuristic, weight="weight")
         except nx.NetworkXNoPath as error:
             raise LookupError(f"there is no way from {origin.id} to {destination.id}") from error
 
-    def find_nearest_path(self, origin: Node, candidates: list[Node], user: User) -> list[Node]:
+        print(path)
+        print(nx.path_weight(graph, path, "weight"))
+
+        return path
+
+    def find_nearest_path(self, origin: Node, candidates: list[Node], user: User) -> list[Node]: # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         '''Finds the fastest way to the nearest of some places, with a Dijkstra search.
+
+        The search leaves out the connections and the ends that the user cannot use, and the
+        candidates that are on a corridor that cannot be walked. The origin is never its own
+        nearest place.
 
         Args:
             origin: The node where the way begins.
@@ -97,7 +116,83 @@ class GraphService:
         Returns:
             The nodes in travel order, from the origin to the nearest candidate.
         '''
-        raise NotImplementedError
+        connections = self.__connection_service.get_connections()
+        locator = NodeLocator(connections)
+        graph = nx.Graph()
+        travel_cost = TravelCost(user.speed)
+
+        # the ends of the connections that the user can walk, linked by those connections
+        for connection in connections:
+            if not connection.is_usable_by(user):
+                continue
+            graph.add_edge(connection.node_a, connection.node_b, connection=connection,
+                           weight=travel_cost.connection_seconds(connection, 0.0, 1.0))
+        print(graph)
+
+        # the places the way can go to, without the origin itself
+        goals = list(candidates)
+        if origin in goals:
+            goals.remove(origin)
+        print(goals)
+
+        # the origin and the goals, when places, are linked to the ends of their corridor
+        places = []
+        for goal in goals:
+            if goal not in graph:
+                places.append(goal)
+        if origin not in graph:
+            places.append(origin)
+        print(places)
+
+        dict_places_position = {}
+        dict_places_walk = {}
+        for place in places:
+            corridor = locator.corridor_of(place)
+            print(corridor)
+            if not graph.has_edge(corridor.node_a, corridor.node_b):
+                if place == origin:
+                    raise LookupError("You can't leave the place you are at.")
+                continue
+
+            position = locator.position_along(corridor, place)
+            print(position)
+            dict_places_position[place] = position
+            dict_places_walk[place] = travel_cost.walk_seconds(
+                place.coordinates, corridor.geometry.point_at(position))
+            print(dict_places_walk[place])
+
+            for end in (corridor.node_a, corridor.node_b):
+                along = travel_cost.connection_seconds(
+                    corridor, position, locator.position_along(corridor, end))
+                print(along)
+                graph.add_edge(place, end, connection=corridor,
+                               weight=along + dict_places_walk[place])
+        print(dict_places_position)
+        print(dict_places_walk)
+
+        # the goals that were linked to the graph, which leaves out the ones on a closed corridor
+        linked_goals = []
+        for goal in goals:
+            if goal in graph:
+                linked_goals.append(goal)
+        print(linked_goals)
+        if not linked_goals:
+            raise LookupError(f"there is no place to go to from {origin.id}")
+
+        # one search from all the goals at once to the origin: it stops at the nearest goal
+        try:
+            seconds, path = nx.multi_source_dijkstra(graph, linked_goals, target=origin,
+                                                     weight="weight")
+        except nx.NetworkXNoPath as error:
+            raise LookupError(f"there is no place to go to from {origin.id}") from error
+
+        # the way was found from the goal to the origin, so it is turned around
+        path.reverse()
+
+        print(seconds)
+        print(path)
+
+        return path
 
     def make_steps(self, path: list[Node], speed: float) -> list[RouteStep]:
         '''Turns the nodes of a way into the steps walked between each pair of them.
