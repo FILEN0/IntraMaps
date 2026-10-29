@@ -52,8 +52,6 @@ CREATE TABLE IF NOT EXISTS connections (
         REFERENCES nodes(id),
     status INTEGER NOT NULL DEFAULT 0
         CHECK (status BETWEEN 0 AND 2),
-    accessible INTEGER NOT NULL
-        CHECK (accessible IN (0, 1)),
     rise_m REAL NOT NULL DEFAULT 0
         CHECK (rise_m >= 0),
     wait_time_s REAL NOT NULL DEFAULT 0

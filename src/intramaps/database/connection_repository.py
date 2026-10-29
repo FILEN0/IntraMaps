@@ -22,9 +22,9 @@ class ConnectionRepository:
         if not isinstance(connection, Connection):
             raise ValueError("connection must be an instance of Connection")
         self.__database.execute(
-            "INSERT INTO connections (id, type, node_a_id, node_b_id, status, accessible, rise_m, wait_time_s) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
+            "INSERT INTO connections (id, type, node_a_id, node_b_id, status, rise_m, wait_time_s) VALUES (?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
             (connection.id, connection.type.value, connection.node_a.id, connection.node_b.id,
-             connection.status.value, int(connection.accessible),
+             connection.status.value,
              getattr(connection, "rise_m", 0), getattr(connection, "wait_time_s", 0)),
         )
         for order, point in enumerate(connection.waypoints, start=1):
@@ -51,7 +51,7 @@ class ConnectionRepository:
         waypoints = self.__load_waypoints()
         children = self.__load_children(nodes)
         rows = self.__database.fetch(
-            "SELECT id, type, node_a_id, node_b_id, status, accessible, rise_m, wait_time_s FROM connections ORDER BY id" # pylint: disable=line-too-long
+            "SELECT id, type, node_a_id, node_b_id, status, rise_m, wait_time_s FROM connections ORDER BY id" # pylint: disable=line-too-long
         )
         return [make_connection(row, nodes, waypoints[row["id"]], tuple(children[row["id"]]))
                 for row in rows]

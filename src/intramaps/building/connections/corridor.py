@@ -8,6 +8,8 @@ from intramaps.enums.enum_building import EnumConnection, EnumStatus
 class Corridor(Connection):
     '''A walkable line between two pseudo nodes, with the places along it.
 
+    Every corridor is accessible: people with accessibility needs can use it.
+
     Attributes:
         children: (node, position) pairs ordered by position. The position goes from 0 (node_a)
             to 1 (node_b), measured along the line.
@@ -17,9 +19,9 @@ class Corridor(Connection):
     def __init__(self, connection_id: int, node_a: PseudoNode, node_b: PseudoNode, # pylint: disable=too-many-arguments,too-many-positional-arguments
                  waypoints: tuple[Coordinates, ...] = (),
                  children: tuple[tuple[Node, float], ...] = (),
-                 status: EnumStatus = EnumStatus.OK, accessible: bool = True):
+                 status: EnumStatus = EnumStatus.OK):
         super().__init__(connection_id, EnumConnection.CORRIDOR, node_a, node_b, waypoints,
-                         status, accessible)
+                         status, accessible=True)
         floor_id = node_a.coordinates.floor_id
         if node_b.coordinates.floor_id != floor_id:
             raise ValueError("a corridor cannot change floors")

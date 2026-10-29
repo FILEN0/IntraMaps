@@ -99,7 +99,6 @@ def make_connection(row, nodes: dict[int, Node], waypoints: list[tuple[float, fl
         case EnumConnection.ELEVATOR:
             return Elevator(row["id"], node_a, node_b, row["rise_m"], row["wait_time_s"], status)
         case EnumConnection.CORRIDOR:
-            return Corridor(row["id"], node_a, node_b, points, children, status,
-                            bool(row["accessible"]))
+            return Corridor(row["id"], node_a, node_b, points, children, status)
         case _:
             raise ValueError("a ramp is saved as a corridor")
