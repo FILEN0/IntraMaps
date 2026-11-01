@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS nodes (
         CHECK (y >= 0),
     facing REAL
         CHECK (facing >= 0 AND facing < 360),
+    opens_at TEXT,
+    closes_at TEXT,
     gender_restriction INTEGER NOT NULL DEFAULT 0
         CHECK (gender_restriction BETWEEN 0 AND 3),
     role_restriction INTEGER NOT NULL DEFAULT 0
@@ -35,6 +37,8 @@ CREATE TABLE IF NOT EXISTS nodes (
 
     CHECK (gender_restriction = 0 OR type = 2),
     CHECK (type <> 1 OR name IS NOT NULL OR number IS NOT NULL),
+    CHECK ((opens_at IS NULL) = (closes_at IS NULL)),
+    CHECK (opens_at IS NULL OR type IN (5, 6)),
     CHECK ((type IN (10, 12)) = (facing IS NOT NULL))
 );
 
@@ -48,8 +52,6 @@ CREATE TABLE IF NOT EXISTS connections (
         REFERENCES nodes(id),
     status INTEGER NOT NULL DEFAULT 0
         CHECK (status BETWEEN 0 AND 2),
-    accessible INTEGER NOT NULL
-        CHECK (accessible IN (0, 1)),
     rise_m REAL NOT NULL DEFAULT 0
         CHECK (rise_m >= 0),
     wait_time_s REAL NOT NULL DEFAULT 0

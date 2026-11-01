@@ -2,20 +2,23 @@
 from intramaps.database.database import Database
 from intramaps.building.nodes.node import Node
 from intramaps.enums.enum_building import EnumNode
+from intramaps.enums.enum_user import EnumGender
 from intramaps.building.factory import make_node
 class NodeRepository:
     '''Saves and loads nodes.'''
 
-    def __init__(self, conn: Database) -> None:
-        self.__connection = conn
+    def __init__(self, database: Database) -> None:
+        self.__database = database
 
     def add(self, node) -> None:
         '''Saves a node in the nodes table.
 
         Args:
-            node: The node to save. Its name, number and facing are saved if the class has them.
+            node: The node to save. Its name, number, facing, gender restriction and opening
+                hours are saved if the class has them.
         '''
 
+        hours = getattr(node, "opening_hours", None)
         values = (
             node.id,
             node.coordinates.floor_id,
@@ -25,10 +28,15 @@ class NodeRepository:
             node.coordinates.x,
             node.coordinates.y,
             getattr(node, "facing", None),
+            getattr(node, "gender_restriction", EnumGender.NONE).value,
+            node.role_restriction.value,
+            node.status.value,
+            None if hours is None else hours.opens_at.strftime("%H:%M"),
+            None if hours is None else hours.closes_at.strftime("%H:%M"),
         )
 
-        self.__connection.execute(
-            "INSERT INTO nodes (id, floor_id, name, number, type, x, y, facing) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
+        self.__database.execute(
+            "INSERT INTO nodes (id, floor_id, name, number, type, x, y, facing, gender_restriction, role_restriction, status, opens_at, closes_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
             values
         )
 
@@ -57,8 +65,8 @@ class NodeRepository:
 
         where = " WHERE " + " AND ".join(conditions) if conditions else ""
 
-        rows = self.__connection.fetch(
-            "SELECT id, floor_id, name, number, type, x, y, facing FROM nodes" + where + " ORDER BY id", # pylint: disable=line-too-long
+        rows = self.__database.fetch(
+            "SELECT id, floor_id, name, number, type, x, y, facing, gender_restriction, role_restriction, status, opens_at, closes_at FROM nodes" + where + " ORDER BY id", # pylint: disable=line-too-long
             tuple(params),
         )
 
@@ -80,7 +88,7 @@ class NodeRepository:
             getattr(node, "facing", None),
             node.id,
         )
-        cursor = self.__connection.execute(
+        cursor = self.__database.execute(
             "UPDATE nodes SET floor_id = ?, name = ?, number = ?, type = ?, x = ?, y = ?, facing = ? WHERE id = ?", # pylint: disable=line-too-long
             values,
         )

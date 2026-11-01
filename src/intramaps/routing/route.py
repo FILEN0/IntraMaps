@@ -18,7 +18,7 @@ class Route:
         if not steps or not all(isinstance(step, RouteStep) for step in steps):
             raise ValueError("a route must have at least one RouteStep")
         for previous, following in zip(steps, steps[1:]):
-            if previous.end.id != following.start.id:
+            if previous.end != following.start:
                 raise ValueError("each step must start where the previous one ended")
         self.__steps = tuple(steps)
 

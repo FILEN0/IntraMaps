@@ -6,8 +6,8 @@ from intramaps.building.floor_plan import FloorPlan
 class FloorRepository:
     '''Saves and loads floors and their plans.'''
 
-    def __init__(self, conn: Database) -> None:
-        self.__connection = conn
+    def __init__(self, database: Database) -> None:
+        self.__database = database
 
     def add(self, floor: Floor, plan: FloorPlan) -> None:
         '''Saves a floor and its plan in the floors table.
@@ -28,7 +28,7 @@ class FloorRepository:
             plan.height_px,
             plan.meters_per_pixel,
         )
-        self.__connection.execute(
+        self.__database.execute(
             "INSERT INTO floors (id, level, building, elevation_m, image_path, width_px, height_px, meters_per_pixel) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", # pylint: disable=line-too-long
             values,
         )
@@ -39,7 +39,7 @@ class FloorRepository:
         Returns:
             The floors as objects.
         '''
-        rows = self.__connection.fetch(
+        rows = self.__database.fetch(
             "SELECT id, level, building, elevation_m FROM floors ORDER BY id"
         )
         return [Floor(row["id"], row["level"], row["building"], row["elevation_m"])
@@ -54,7 +54,7 @@ class FloorRepository:
         Returns:
             The plan, or None if there is no floor with this id.
         '''
-        rows = self.__connection.fetch(
+        rows = self.__database.fetch(
             "SELECT id, image_path, width_px, height_px, meters_per_pixel FROM floors WHERE id = ?", # pylint: disable=line-too-long
             (floor_id,),
             1,
