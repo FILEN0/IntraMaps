@@ -4,7 +4,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from intramaps.database.user_repository import UserRepository
-from intramaps.enums.enum_user import EnumGender, EnumRole, EnumAccessibility
+from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
 from intramaps.users.user import User
 
 _TOKEN_TTL_HOURS = 24
@@ -20,7 +20,7 @@ class AuthService:
     def __init__(self, users: UserRepository) -> None:
         self.__users = users
 
-    def register(self, username: str, password: str,
+    def register(self, username: str, password: str,  # pylint: disable=too-many-arguments,too-many-positional-arguments
                  gender: EnumGender = EnumGender.NONE,
                  accessibility: EnumAccessibility = EnumAccessibility.NONE,
                  role: EnumRole = EnumRole.STUDENT,
@@ -145,3 +145,4 @@ class AuthService:
     @staticmethod
     def __hash(password: str) -> str:
         return hashlib.sha256(password.encode()).hexdigest()
+    

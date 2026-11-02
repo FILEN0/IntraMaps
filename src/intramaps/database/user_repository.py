@@ -10,7 +10,7 @@ class UserRepository:
     def __init__(self, conn: Database) -> None:
         self.__connection = conn
 
-    def add(self, username: str, password_hash: str, gender: EnumGender,
+    def add(self, username: str, password_hash: str, gender: EnumGender,  # pylint: disable=too-many-arguments,too-many-positional-arguments
             role: EnumRole, accessibility: EnumAccessibility,
             speed: float = User.DEFAULT_SPEED) -> int:
         '''Saves a new user in the users table.
@@ -271,3 +271,4 @@ class UserRepository:
             user_role=EnumRole(row["role"]),
             user_speed=row["speed"],
         )
+    

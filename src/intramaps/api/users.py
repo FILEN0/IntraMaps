@@ -14,41 +14,41 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 class GenderSlug(str, Enum):
     '''Gender values as used in the API.'''
-    none = "none"
-    male = "male"
-    female = "female"
-    other = "other"
+    NONE = "none"
+    MALE = "male"
+    FEMALE = "female"
+    OTHER = "other"
 
 
 class AccessibilitySlug(str, Enum):
     '''Accessibility values as used in the API.'''
-    none = "none"
-    wheelchair = "wheelchair"
-    crutches = "crutches"
+    NONE = "none"
+    WHEELCHAIR = "wheelchair"
+    CRUTCHES = "crutches"
 
 
 class RoleSlug(str, Enum):
     '''Role values as used in the API.'''
-    student = "student"
-    faculty = "faculty"
-    staff = "staff"
+    STUDENT = "student"
+    FACULTY = "faculty"
+    STAFF = "staff"
 
 
 _GENDER = {
-    GenderSlug.none: EnumGender.NONE,
-    GenderSlug.male: EnumGender.MALE,
-    GenderSlug.female: EnumGender.FEMALE,
-    GenderSlug.other: EnumGender.OTHER,
+    GenderSlug.NONE: EnumGender.NONE,
+    GenderSlug.MALE: EnumGender.MALE,
+    GenderSlug.FEMALE: EnumGender.FEMALE,
+    GenderSlug.OTHER: EnumGender.OTHER,
 }
 _ACCESSIBILITY = {
-    AccessibilitySlug.none: EnumAccessibility.NONE,
-    AccessibilitySlug.wheelchair: EnumAccessibility.WHEELCHAIR,
-    AccessibilitySlug.crutches: EnumAccessibility.CRUTCHES,
+    AccessibilitySlug.NONE: EnumAccessibility.NONE,
+    AccessibilitySlug.WHEELCHAIR: EnumAccessibility.WHEELCHAIR,
+    AccessibilitySlug.CRUTCHES: EnumAccessibility.CRUTCHES,
 }
 _ROLE = {
-    RoleSlug.student: EnumRole.STUDENT,
-    RoleSlug.faculty: EnumRole.FACULTY,
-    RoleSlug.staff: EnumRole.STAFF,
+    RoleSlug.STUDENT: EnumRole.STUDENT,
+    RoleSlug.FACULTY: EnumRole.FACULTY,
+    RoleSlug.STAFF: EnumRole.STAFF,
 }
 
 
@@ -56,9 +56,9 @@ class RegisterBody(BaseModel):
     '''Body for POST /users.'''
     username: str
     password: str
-    gender: GenderSlug = GenderSlug.none
-    accessibility: AccessibilitySlug = AccessibilitySlug.none
-    role: RoleSlug = RoleSlug.student
+    gender: GenderSlug = GenderSlug.NONE
+    accessibility: AccessibilitySlug = AccessibilitySlug.NONE
+    role: RoleSlug = RoleSlug.STUDENT
     speed: float = Field(default=User.DEFAULT_SPEED, gt=0)
 
 
@@ -85,7 +85,6 @@ def _user_dto(user: User) -> dict:
         "role": user.role.name.lower(),
         "speed": user.speed,
     }
-
 
 
 @router.post("", status_code=201)
@@ -133,7 +132,7 @@ def update_me(
     user: User = Depends(get_current_user),
     auth: AuthService = Depends(get_auth_service),
 ):
-    '''Updates one or more fields of the logged-in user's profile.'''
+    '''Updates one or more fields of the logged-in user profile.'''
     if all(v is None for v in (body.gender, body.accessibility, body.role, body.speed)):
         raise HTTPException(status_code=422, detail="informe ao menos um campo")
     if body.gender is not None:
@@ -220,3 +219,4 @@ def clear_history(
 ):
     '''Clears all history entries for the logged-in user.'''
     auth.clear_history(user.id)
+    
