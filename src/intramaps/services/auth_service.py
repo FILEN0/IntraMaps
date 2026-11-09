@@ -44,7 +44,7 @@ class AuthService:
         if self.__users.get_by_username(username) is not None:
             raise ValueError(f"username {username!r} already exists")
         user_id = self.__users.add(
-            username, self.__hash(password), gender, role, accessibility, speed
+            username, self.__hash(username, password), gender, role, accessibility, speed
         )
         return self.__users.get_by_id(user_id)
 
@@ -62,7 +62,7 @@ class AuthService:
             PermissionError: If the credentials are wrong.
         '''
         stored_hash = self.__users.get_password_hash(username)
-        if stored_hash is None or stored_hash != self.__hash(password):
+        if stored_hash is None or stored_hash != self.__hash(username, password):
             raise PermissionError("invalid username or password")
         user = self.__users.get_by_username(username)
         token = secrets.token_hex(32)
@@ -143,5 +143,6 @@ class AuthService:
         self.__users.clear_history(user_id)
 
     @staticmethod
-    def __hash(password: str) -> str:
-        return hashlib.sha256(password.encode()).hexdigest()
+    def __hash(username: str, password: str) -> str:
+        '''Hashes the username with the password, so equal passwords give different hashes.'''
+        return hashlib.sha256(f"{username}:{password}".encode()).hexdigest()
