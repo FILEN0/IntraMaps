@@ -200,7 +200,7 @@ class UserRepository:
         '''
         last = self.__connection.fetch(
             "SELECT node_a_id, node_b_id FROM history"
-            " WHERE user_id = ? ORDER BY created_at DESC",
+            " WHERE user_id = ? ORDER BY created_at DESC, id DESC",
             (user_id,),
             count=1,
         )
@@ -222,7 +222,7 @@ class UserRepository:
         '''
         rows = self.__connection.fetch(
             "SELECT id, node_a_id, node_b_id, created_at FROM history"
-            " WHERE user_id = ? ORDER BY created_at DESC",
+            " WHERE user_id = ? ORDER BY created_at DESC, id DESC",
             (user_id,),
         )
         return [
