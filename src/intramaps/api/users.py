@@ -1,12 +1,12 @@
 '''User routes.'''
 import string
-from enum import Enum
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from intramaps.api.dependencies import get_auth_service, get_current_token, get_current_user
-from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
+from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySlug, GenderSlug,
+                                RoleSlug)
 from intramaps.services.auth_service import AuthService
 from intramaps.users.user import User
 
@@ -14,46 +14,6 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 MAX_SPEED = 10  # meters per second
 _USERNAME_CHARS = set(string.ascii_lowercase + string.digits + "_.")
-
-
-class GenderSlug(str, Enum):
-    '''Gender values as used in the API.'''
-    NONE = "none"
-    MALE = "male"
-    FEMALE = "female"
-    OTHER = "other"
-
-
-class AccessibilitySlug(str, Enum):
-    '''Accessibility values as used in the API.'''
-    NONE = "none"
-    WHEELCHAIR = "wheelchair"
-    CRUTCHES = "crutches"
-
-
-class RoleSlug(str, Enum):
-    '''Role values as used in the API.'''
-    STUDENT = "student"
-    FACULTY = "faculty"
-    STAFF = "staff"
-
-
-_GENDER = {
-    GenderSlug.NONE: EnumGender.NONE,
-    GenderSlug.MALE: EnumGender.MALE,
-    GenderSlug.FEMALE: EnumGender.FEMALE,
-    GenderSlug.OTHER: EnumGender.OTHER,
-}
-_ACCESSIBILITY = {
-    AccessibilitySlug.NONE: EnumAccessibility.NONE,
-    AccessibilitySlug.WHEELCHAIR: EnumAccessibility.WHEELCHAIR,
-    AccessibilitySlug.CRUTCHES: EnumAccessibility.CRUTCHES,
-}
-_ROLE = {
-    RoleSlug.STUDENT: EnumRole.STUDENT,
-    RoleSlug.FACULTY: EnumRole.FACULTY,
-    RoleSlug.STAFF: EnumRole.STAFF,
-}
 
 
 class RegisterBody(BaseModel):
@@ -124,8 +84,8 @@ def register(body: RegisterBody, auth: AuthService = Depends(get_auth_service)):
     try:
         user = auth.register(
             body.username, body.password,
-            _GENDER[body.gender], _ACCESSIBILITY[body.accessibility],
-            _ROLE[body.role], body.speed,
+            GENDERS[body.gender], ACCESSIBILITIES[body.accessibility],
+            ROLES[body.role], body.speed,
         )
         return _user_dto(user)
     except ValueError as e:
@@ -167,11 +127,11 @@ def update_me(
     if all(v is None for v in (body.gender, body.accessibility, body.role, body.speed)):
         raise HTTPException(status_code=422, detail="informe ao menos um campo")
     if body.gender is not None:
-        user.gender = _GENDER[body.gender]
+        user.gender = GENDERS[body.gender]
     if body.accessibility is not None:
-        user.accessibility = _ACCESSIBILITY[body.accessibility]
+        user.accessibility = ACCESSIBILITIES[body.accessibility]
     if body.role is not None:
-        user.role = _ROLE[body.role]
+        user.role = ROLES[body.role]
     if body.speed is not None:
         user.speed = body.speed
     auth.update_user(user)
