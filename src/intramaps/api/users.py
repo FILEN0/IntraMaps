@@ -1,4 +1,5 @@
 '''User routes.'''
+import string
 from enum import Enum
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -12,6 +13,7 @@ from intramaps.users.user import User
 router = APIRouter(prefix="/users", tags=["users"])
 
 MAX_SPEED = 10  # meters per second
+_USERNAME_CHARS = set(string.ascii_lowercase + string.digits + "_.")
 
 
 class GenderSlug(str, Enum):
@@ -56,8 +58,8 @@ _ROLE = {
 
 class RegisterBody(BaseModel):
     '''Body for POST /users.'''
-    username: str
-    password: str
+    username: str = Field(min_length=3, max_length=20, examples=["ana_silva"])
+    password: str = Field(min_length=6, max_length=64, examples=["senha123"])
     gender: GenderSlug = GenderSlug.NONE
     accessibility: AccessibilitySlug = AccessibilitySlug.NONE
     role: RoleSlug = RoleSlug.STUDENT
@@ -89,9 +91,36 @@ def _user_dto(user: User) -> dict:
     }
 
 
+def _check_username(username: str) -> None:
+    '''Checks the characters of the username.'''
+    if not set(username) <= _USERNAME_CHARS:
+        raise HTTPException(
+            status_code=422,
+            detail="username aceita só letras minúsculas, números, _ e .",
+        )
+
+
+def _check_password(password: str) -> None:
+    '''Checks the characters of the password.'''
+    if not password.isprintable():
+        raise HTTPException(
+            status_code=422,
+            detail="a senha tem caracteres inválidos",
+        )
+    has_letter = any(char in string.ascii_letters for char in password)
+    has_digit = any(char in string.digits for char in password)
+    if not (has_letter and has_digit):
+        raise HTTPException(
+            status_code=422,
+            detail="a senha precisa de ao menos uma letra e um número",
+        )
+
+
 @router.post("", status_code=201)
 def register(body: RegisterBody, auth: AuthService = Depends(get_auth_service)):
     '''Creates a new user account.'''
+    _check_username(body.username)
+    _check_password(body.password)
     try:
         user = auth.register(
             body.username, body.password,
