@@ -11,6 +11,8 @@ from intramaps.users.user import User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+MAX_SPEED = 10  # meters per second
+
 
 class GenderSlug(str, Enum):
     '''Gender values as used in the API.'''
@@ -59,7 +61,7 @@ class RegisterBody(BaseModel):
     gender: GenderSlug = GenderSlug.NONE
     accessibility: AccessibilitySlug = AccessibilitySlug.NONE
     role: RoleSlug = RoleSlug.STUDENT
-    speed: float = Field(default=User.DEFAULT_SPEED, gt=0)
+    speed: float = Field(default=User.DEFAULT_SPEED, gt=0, le=MAX_SPEED, strict=True)
 
 
 class LoginBody(BaseModel):
@@ -73,7 +75,7 @@ class UpdateBody(BaseModel):
     gender: GenderSlug | None = None
     accessibility: AccessibilitySlug | None = None
     role: RoleSlug | None = None
-    speed: float | None = Field(default=None, gt=0)
+    speed: float | None = Field(default=None, gt=0, le=MAX_SPEED, strict=True)
 
 
 def _user_dto(user: User) -> dict:
