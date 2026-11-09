@@ -13,6 +13,7 @@ class User: # pylint: disable=too-many-instance-attributes
     '''
 
     DEFAULT_SPEED = 1.4
+    MAX_SPEED = 10
 
     def __init__(self, user_id: int, user_name: str, user_gender: EnumGender, # pylint: disable=too-many-arguments,too-many-positional-arguments
                  user_accessibility: EnumAccessibility, user_role: EnumRole,
