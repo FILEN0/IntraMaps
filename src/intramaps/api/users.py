@@ -219,4 +219,3 @@ def clear_history(
 ):
     '''Clears all history entries for the logged-in user.'''
     auth.clear_history(user.id)
-    

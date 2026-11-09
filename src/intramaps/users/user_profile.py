@@ -35,4 +35,3 @@ class UserProfile:
     def needs_accessible_route(self) -> bool:
         '''Returns True if the user needs a route without stairs.'''
         return self.__accessibility != EnumAccessibility.NONE
-    

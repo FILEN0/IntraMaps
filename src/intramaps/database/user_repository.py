@@ -271,4 +271,3 @@ class UserRepository:
             user_role=EnumRole(row["role"]),
             user_speed=row["speed"],
         )
-    
