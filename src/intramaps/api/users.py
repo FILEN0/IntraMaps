@@ -54,7 +54,7 @@ def _check_username(username: str) -> None:
     '''Checks the characters of the username.'''
     if not set(username) <= _USERNAME_CHARS:
         raise HTTPException(
-            status_code=422,
+            status_code=400,
             detail="username aceita só letras minúsculas, números, _ e .",
         )
 
@@ -63,14 +63,14 @@ def _check_password(password: str) -> None:
     '''Checks the characters of the password.'''
     if not password.isprintable():
         raise HTTPException(
-            status_code=422,
+            status_code=400,
             detail="a senha tem caracteres inválidos",
         )
     has_letter = any(char in string.ascii_letters for char in password)
     has_digit = any(char in string.digits for char in password)
     if not (has_letter and has_digit):
         raise HTTPException(
-            status_code=422,
+            status_code=400,
             detail="a senha precisa de ao menos uma letra e um número",
         )
 
@@ -124,7 +124,7 @@ def update_me(
 ):
     '''Updates one or more fields of the logged-in user profile.'''
     if all(v is None for v in (body.gender, body.accessibility, body.role, body.speed)):
-        raise HTTPException(status_code=422, detail="informe ao menos um campo")
+        raise HTTPException(status_code=400, detail="informe ao menos um campo")
     if body.gender is not None:
         user.gender = GENDERS[body.gender]
     if body.accessibility is not None:
