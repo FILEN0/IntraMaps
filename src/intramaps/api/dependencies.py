@@ -11,7 +11,7 @@ from intramaps.users.user import User
 
 _DB: Database | None = None
 _DB_PATH = Path(__file__).parent.parent.parent.parent / "data" / "intramaps.db"
-_BEARER = HTTPBearer()
+_BEARER = HTTPBearer(auto_error=False)
 
 
 def get_db() -> Database:
@@ -35,8 +35,15 @@ def get_auth_service(
     return AuthService(users)
 
 
+def _token_from(credentials: HTTPAuthorizationCredentials | None) -> str:
+    '''Returns the token from the Authorization header, or answers 401 if there is none.'''
+    if credentials is None:
+        raise HTTPException(status_code=401, detail="autenticação necessária")
+    return credentials.credentials
+
+
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(_BEARER),
+    credentials: HTTPAuthorizationCredentials | None = Depends(_BEARER),
     auth: AuthService = Depends(get_auth_service),
 ) -> User:
     '''Returns the logged-in user from the Authorization header.
@@ -44,14 +51,14 @@ def get_current_user(
     Raises:
         HTTPException 401: If the token is missing, invalid or expired.
     '''
-    user = auth.get_user_from_token(credentials.credentials)
+    user = auth.get_user_from_token(_token_from(credentials))
     if user is None:
         raise HTTPException(status_code=401, detail="token inválido ou expirado")
     return user
 
 
 def get_current_token(
-    credentials: HTTPAuthorizationCredentials = Depends(_BEARER),
+    credentials: HTTPAuthorizationCredentials | None = Depends(_BEARER),
     auth: AuthService = Depends(get_auth_service),
 ) -> str:
     '''Returns the raw token after confirming it is active.
@@ -59,7 +66,7 @@ def get_current_token(
     Raises:
         HTTPException 401: If the token is missing, invalid or expired.
     '''
-    token = credentials.credentials
+    token = _token_from(credentials)
     if auth.get_user_from_token(token) is None:
         raise HTTPException(status_code=401, detail="token inválido ou expirado")
     return token
