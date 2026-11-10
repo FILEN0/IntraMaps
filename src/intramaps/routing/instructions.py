@@ -41,26 +41,37 @@ PLACES = {
 
 
 def write_instructions(route: Route) -> list[str]:
-    '''Tells a route in words, with one sentence for each step.
+    '''Tells a route in words.
+
+    The steps that go straight on are told together with the step after them, in one sentence
+    with the sum of their lengths.
 
     Args:
         route: The route to tell.
 
     Returns:
-        The sentences in Portuguese, in the same order as the steps of the route.
+        The sentences in Portuguese, in travel order.
     '''
     movements = (*route.movements, None)
     followings = (*route.steps[1:], None)
-    return [_sentence(step, movement, following)
-            for step, movement, following in zip(route.steps, movements, followings)]
+    instructions = []
+    meters = 0.0
+    for step, movement, following in zip(route.steps, movements, followings):
+        meters += step.meters or 0.0
+        if movement == EnumMovement.STRAIGHT and not step.changes_floor:
+            continue
+        instructions.append(_sentence(step, meters, movement, following))
+        meters = 0.0
+    return instructions
 
 
-def _sentence(step: RouteStep, movement: EnumMovement | None,
+def _sentence(step: RouteStep, meters: float, movement: EnumMovement | None,
               following: RouteStep | None) -> str:
-    '''Tells how to walk one step.
+    '''Tells how to walk a step, together with the steps that go straight on before it.
 
     Args:
         step: The step to tell.
+        meters: The length to tell, in meters.
         movement: What to do where the step ends, or None when it does not apply.
         following: The step that comes next, or None for the last step.
 
@@ -72,7 +83,7 @@ def _sentence(step: RouteStep, movement: EnumMovement | None,
         if movement in TURNS:
             return f"{text} e, ao sair, {TURNS[movement]}."
         return f"{text}."
-    text = f"Siga por {max(round(step.meters), 1)} m"
+    text = f"Siga por {max(round(meters), 1)} m"
     if following is None:
         return f"{text} até {_place(step.end)}."
     if movement in (EnumMovement.UP, EnumMovement.DOWN):
