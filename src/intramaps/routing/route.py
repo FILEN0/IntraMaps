@@ -46,15 +46,15 @@ class Route:
     @property
     def meters(self) -> float:
         '''Returns the length of the route in meters, counting the height climbed or descended.'''
-        return sum((step.meters or 0.0) + step.rise_m for step in self.__steps)
+        return sum((step.meters or 0.0) + abs(step.rise_m) for step in self.__steps)
 
     @property
     def movements(self) -> tuple[EnumMovement | None, ...]:
         '''Returns what to do where each step meets the next one.
 
         Only the junctions between steps count, and not the corners inside a step. A movement is
-        None next to a step that changes floors (stairs, elevator). A route with n steps has n - 1
-        movements.
+        UP or DOWN before a step that changes floors (stairs, elevator), and None after it. A
+        route with n steps has n - 1 movements.
         '''
         return tuple(arriving.go_to(leaving)
                      for arriving, leaving in zip(self.__steps, self.__steps[1:]))

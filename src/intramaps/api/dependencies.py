@@ -59,9 +59,10 @@ def get_node_service(db: Database = Depends(get_db)) -> NodeService:
 
 
 def get_route_service(db: Database = Depends(get_db),
-                      nodes: NodeService = Depends(get_node_service)) -> RouteService:
+                      nodes: NodeService = Depends(get_node_service),
+                      floors: FloorService = Depends(get_floor_service)) -> RouteService:
     '''Returns a RouteService backed by the shared database.'''
-    graph = GraphService(ConnectionService(ConnectionRepository(db), nodes))
+    graph = GraphService(ConnectionService(ConnectionRepository(db), nodes), floors)
     return RouteService(nodes, graph)
 
 

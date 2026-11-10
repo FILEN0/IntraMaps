@@ -8,6 +8,7 @@ from intramaps.routing.node_locator import NodeLocator
 from intramaps.routing.route_step import RouteStep
 from intramaps.routing.travel_cost import TravelCost
 from intramaps.services.connection_service import ConnectionService
+from intramaps.services.floor_service import FloorService
 from intramaps.users.user import User
 
 class GraphService:
@@ -17,8 +18,9 @@ class GraphService:
         connection_service: The service that loads the connections of the building.
     '''
 
-    def __init__(self, connection_service: ConnectionService) -> None:
+    def __init__(self, connection_service: ConnectionService, floor_service: FloorService) -> None:
         self.__connection_service = connection_service
+        self.__floor_service = floor_service
 
     def find_path(self, origin: Node, destination: Node, user: User) -> list[Node]: # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         '''Finds the fastest way between two nodes, with an A* search.
@@ -218,11 +220,12 @@ class GraphService:
         '''
         locator = NodeLocator(self.__connection_service.get_connections())
         travel_cost = TravelCost(speed)
-        return [self.__make_step(locator, travel_cost, start, end)
+        elevations = self.__floor_service.elevations()
+        return [self.__make_step(locator, travel_cost, elevations, start, end)
                 for start, end in zip(path, path[1:])]
 
-    def __make_step(self, locator: NodeLocator, travel_cost: TravelCost, start: Node,
-                    end: Node) -> RouteStep:
+    def __make_step(self, locator: NodeLocator, travel_cost: TravelCost, elevations: dict,
+                    start: Node, end: Node) -> RouteStep:
         '''Builds the stretch between two nodes, with the walk from or to a room included.'''
         connection = locator.connection_between(start, end)
         begin = locator.position_along(connection, start)
@@ -239,7 +242,11 @@ class GraphService:
                 seconds += travel_cost.walk_seconds(end.coordinates, points[-1])
                 points.append(end.coordinates)
             points = self.__remove_repeated_points(points)
-        return RouteStep(connection, start, end, Geometry(points), seconds)
+        rise = getattr(connection, "rise_m", 0.0)
+        if elevations[end.coordinates.floor_id] < elevations[start.coordinates.floor_id]:
+            rise = -rise
+        print("step", start.id, end.id, "rise", rise)
+        return RouteStep(connection, start, end, Geometry(points), seconds, rise)
 
     def __remove_repeated_points(self, points: list[Coordinates]) -> list[Coordinates]:
         '''Drops the points that repeat the one before, keeping at least two points.'''

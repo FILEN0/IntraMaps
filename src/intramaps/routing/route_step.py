@@ -31,7 +31,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
     BACK_LIMIT = 160
 
     def __init__(self, connection: Connection, start: Node, end: Node,
-                 geometry: Geometry, seconds: float):
+                 geometry: Geometry, seconds: float, rise_m: float = 0.0):
         if not isinstance(connection, Connection):
             raise ValueError("connection must be an instance of Connection")
         if not isinstance(start, Node) or not isinstance(end, Node):
@@ -45,6 +45,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         self.__end = end
         self.__geometry = geometry
         self.__seconds = seconds
+        self.__rise_m = rise_m
 
     @property
     def connection(self) -> Connection:
@@ -85,8 +86,8 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
 
     @property
     def rise_m(self) -> float:
-        '''Returns the height climbed or descended along the stretch, in meters.'''
-        return getattr(self.__connection, "rise_m", 0.0)
+        '''Returns the height climbed, or descended if negative, in meters.'''
+        return self.__rise_m
 
     def go_to(self, following: 'RouteStep') -> EnumMovement | None:
         '''Finds what to do where this step meets the one that comes next.
@@ -101,11 +102,16 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
 
         Returns:
             STRAIGHT, SLIGHT_RIGHT, RIGHT, SHARP_RIGHT, BACK or the same three to the left.
-            It is None when either step changes floors or has no length, because there is no
-            direction to compare.
+            UP or DOWN when the following step changes floors. It is None when this step changes
+            floors or either step has no length, because there is no direction to compare.
         '''
         if not isinstance(following, RouteStep):
             raise ValueError("following must be a RouteStep object")
+        print("go_to", self.end.id, following.end.id, following.rise_m)
+        if following.rise_m > 0:
+            return EnumMovement.UP
+        if following.rise_m < 0:
+            return EnumMovement.DOWN
         if (self.changes_floor or following.changes_floor
                 or 0 in (self.geometry.length, following.geometry.length)):
             return None

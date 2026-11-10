@@ -26,3 +26,8 @@ class FloorService:
     def exists(self, floor_id: int) -> bool:
         '''Returns whether there is a floor with this id.'''
         return self.__floor_repository.get_plan(floor_id) is not None
+
+    def elevations(self) -> dict[int, float]:
+        elevations = {floor.id: floor.elevation_m for floor in self.__floor_repository.list_all()}
+        print("elevations", elevations)
+        return elevations
