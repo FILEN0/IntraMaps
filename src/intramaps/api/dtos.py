@@ -7,6 +7,7 @@ from intramaps.building.nodes.node import Node
 from intramaps.enums.enum_building import EnumNode
 from intramaps.enums.enum_routing import EnumMovement
 from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
+from intramaps.routing.instructions import write_instructions
 from intramaps.routing.route import Route
 from intramaps.routing.route_step import RouteStep, node_label
 
@@ -192,3 +193,20 @@ class RouteDTO(BaseModel):
             steps=[StepDTO.from_step(step, movement)
                    for step, movement in zip(route.steps, movements)],
         )
+
+
+class InstructionDTO(BaseModel):
+    '''The sentence that tells how to walk one step of a route.'''
+    step: int
+    text: str
+
+
+class InstructionsDTO(BaseModel):
+    '''A route told in words, with one sentence for each step.'''
+    instructions: list[InstructionDTO]
+
+    @classmethod
+    def from_route(cls, route: Route) -> 'InstructionsDTO':
+        '''Builds the DTO of the instructions of a route.'''
+        return cls(instructions=[InstructionDTO(step=index, text=text)
+                                 for index, text in enumerate(write_instructions(route))])
