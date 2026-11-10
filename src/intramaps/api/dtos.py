@@ -1,6 +1,8 @@
 '''Names the API uses in JSON for the enums, and the shapes of its responses.'''
 from enum import Enum
 
+from pydantic import BaseModel
+
 from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
 
 
@@ -42,3 +44,15 @@ ROLES = {
     RoleSlug.FACULTY: EnumRole.FACULTY,
     RoleSlug.STAFF: EnumRole.STAFF,
 }
+
+
+class FloorDTO(BaseModel):
+    '''A floor with the size and the scale of its plan, so the client can draw on it.'''
+    id: int
+    level: int
+    building: str
+    elevation_m: float
+    width_px: int
+    height_px: int
+    meters_per_pixel: float
+    plan_url: str

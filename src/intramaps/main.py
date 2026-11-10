@@ -1,10 +1,9 @@
 '''IntraMaps API entry point.'''
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from starlette.middleware.gzip import GZipMiddleware
 
+from intramaps.api.floors import router as floors_router
 from intramaps.api.users import router as users_router
-from intramaps.building.router import router as building_router
-from intramaps.routing.router import router as routing_router
 
 app = FastAPI(
     title="IntraMaps",
@@ -14,9 +13,10 @@ app = FastAPI(
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
-app.include_router(building_router)
-app.include_router(routing_router)
-app.include_router(users_router, prefix="/api/v1")
+api = APIRouter(prefix="/api/v1")
+api.include_router(users_router)
+api.include_router(floors_router)
+app.include_router(api)
 
 
 @app.get("/")

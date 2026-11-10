@@ -7,13 +7,16 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySlug, GenderSlug,
                                 RoleSlug)
 from intramaps.database.database import Database
+from intramaps.database.floor_repository import FloorRepository
 from intramaps.database.user_repository import UserRepository
 from intramaps.services.auth_service import AuthService
+from intramaps.services.floor_service import FloorService
 from intramaps.users.anonymous import Anonymous
 from intramaps.users.user import User
 
 _DB: Database | None = None
-_DB_PATH = Path(__file__).parent.parent.parent.parent / "data" / "intramaps.db"
+DATA_DIR = Path(__file__).parent.parent.parent.parent / "data"
+_DB_PATH = DATA_DIR / "intramaps.db"
 _BEARER = HTTPBearer(auto_error=False)
 
 
@@ -36,6 +39,11 @@ def get_auth_service(
 ) -> AuthService:
     '''Returns an AuthService backed by the user repository.'''
     return AuthService(users)
+
+
+def get_floor_service(db: Database = Depends(get_db)) -> FloorService:
+    '''Returns a FloorService backed by the shared database.'''
+    return FloorService(FloorRepository(db))
 
 
 def _token_from(credentials: HTTPAuthorizationCredentials | None) -> str:
