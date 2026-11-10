@@ -39,7 +39,7 @@ class GraphService:
         connections = self.__connection_service.get_connections()
         locator = NodeLocator(connections)
         graph = nx.Graph()
-        travel_cost = TravelCost(user.speed)
+        travel_cost = TravelCost(user.travel_speed)
 
         # the ends of the connections that the user can walk, linked by those connections
         for connection in connections:
@@ -122,7 +122,7 @@ class GraphService:
         connections = self.__connection_service.get_connections()
         locator = NodeLocator(connections)
         graph = nx.Graph()
-        travel_cost = TravelCost(user.speed)
+        travel_cost = TravelCost(user.travel_speed)
 
         # the ends of the connections that the user can walk, linked by those connections
         for connection in connections:
@@ -217,7 +217,7 @@ class GraphService:
 
         Args:
             path: The nodes in travel order, as returned by find_path or find_nearest_path.
-            speed: Walking speed of the user, in meters per second.
+            speed: Speed the user travels at, in meters per second.
 
         Returns:
             The steps in travel order, one for each pair of consecutive nodes.

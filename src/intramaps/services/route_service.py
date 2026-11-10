@@ -59,7 +59,7 @@ class RouteService:
             The route, as consecutive steps.
         '''
         path = self.find_nodes(origin_id, destination_id, user)
-        return Route(tuple(self.__graph_service.make_steps(path, user.speed)))
+        return Route(tuple(self.__graph_service.make_steps(path, user.travel_speed)))
 
     def find_nearest_route(self, origin_id: int, node_type: EnumNode, user: User) -> Route:
         '''Finds the fastest way to the nearest place of a type, as steps with directions.
@@ -73,7 +73,7 @@ class RouteService:
             The route, as consecutive steps, ending at the nearest valid place.
         '''
         path = self.find_nearest_nodes(origin_id, node_type, user)
-        return Route(tuple(self.__graph_service.make_steps(path, user.speed)))
+        return Route(tuple(self.__graph_service.make_steps(path, user.travel_speed)))
 
     def __get_route(self, origin_id: int, destination_id: int, user: User) -> list[Node]:
         '''Checks the request and finds the nodes of the fastest way, with an A* search.'''
