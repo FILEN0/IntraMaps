@@ -6,13 +6,18 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySlug, GenderSlug,
                                 RoleSlug)
+from intramaps.building.nodes.node import Node
+from intramaps.database.connection_repository import ConnectionRepository
 from intramaps.database.database import Database
 from intramaps.database.floor_repository import FloorRepository
 from intramaps.database.node_repository import NodeRepository
 from intramaps.database.user_repository import UserRepository
 from intramaps.services.auth_service import AuthService
+from intramaps.services.connection_service import ConnectionService
 from intramaps.services.floor_service import FloorService
+from intramaps.services.graph_service import GraphService
 from intramaps.services.node_service import NodeService
+from intramaps.services.route_service import RouteService
 from intramaps.users.anonymous import Anonymous
 from intramaps.users.user import User
 
@@ -51,6 +56,21 @@ def get_floor_service(db: Database = Depends(get_db)) -> FloorService:
 def get_node_service(db: Database = Depends(get_db)) -> NodeService:
     '''Returns a NodeService backed by the shared database.'''
     return NodeService(NodeRepository(db))
+
+
+def get_route_service(db: Database = Depends(get_db),
+                      nodes: NodeService = Depends(get_node_service)) -> RouteService:
+    '''Returns a RouteService backed by the shared database.'''
+    graph = GraphService(ConnectionService(ConnectionRepository(db), nodes))
+    return RouteService(nodes, graph)
+
+
+def find_place(nodes: NodeService, place_id: int) -> Node:
+    '''Returns the place with this id, or answers 404 if there is none.'''
+    place = nodes.get_place(place_id)
+    if place is None:
+        raise HTTPException(status_code=404, detail=f"lugar {place_id} não encontrado")
+    return place
 
 
 def _token_from(credentials: HTTPAuthorizationCredentials | None) -> str:

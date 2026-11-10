@@ -1,11 +1,14 @@
 '''Names the API uses in JSON for the enums, and the shapes of its responses.'''
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from intramaps.building.nodes.node import Node
 from intramaps.enums.enum_building import EnumNode
+from intramaps.enums.enum_routing import EnumMovement
 from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
+from intramaps.routing.route import Route
+from intramaps.routing.route_step import RouteStep, node_label
 
 
 class GenderSlug(str, Enum):
@@ -47,6 +50,28 @@ class StatusSlug(str, Enum):
     OK = "ok"
     MAINTENANCE = "maintenance"
     CLOSED = "closed"
+
+
+class ConnectionSlug(str, Enum):
+    '''Connection types as used in the API.'''
+    CORRIDOR = "corridor"
+    STAIRS = "stairs"
+    ELEVATOR = "elevator"
+    RAMP = "ramp"
+
+
+class MovementSlug(str, Enum):
+    '''Movements as used in the API.'''
+    STRAIGHT = "straight"
+    SLIGHT_RIGHT = "slight-right"
+    RIGHT = "right"
+    SHARP_RIGHT = "sharp-right"
+    SLIGHT_LEFT = "slight-left"
+    LEFT = "left"
+    SHARP_LEFT = "sharp-left"
+    BACK = "back"
+    UP = "up"
+    DOWN = "down"
 
 
 GENDERS = {
@@ -105,4 +130,65 @@ class PlaceDTO(BaseModel):
             status=StatusSlug[node.status.name],
             gender_restriction=GenderSlug[gender.name] if has_gender else None,
             role_restriction=RoleSlug[node.role_restriction.name],
+        )
+
+
+class PointDTO(BaseModel):
+    '''A point of a step, in meters, on the plan of its floor.'''
+    x: float
+    y: float
+    floor_id: int
+
+
+class StepEndDTO(BaseModel):
+    '''The node where a step begins or ends.'''
+    id: int
+    label: str
+
+
+class StepDTO(BaseModel):
+    '''One stretch of a route, walked along a single connection.'''
+    model_config = ConfigDict(validate_by_name=True)
+
+    connection: ConnectionSlug
+    from_: StepEndDTO = Field(alias="from")
+    to: StepEndDTO
+    meters: float | None
+    seconds: float
+    changes_floor: bool
+    points: list[PointDTO]
+    movement: MovementSlug | None
+
+    @classmethod
+    def from_step(cls, step: RouteStep, movement: EnumMovement | None) -> 'StepDTO':
+        '''Builds the DTO of a step. The movement is what to do where the step ends.'''
+        return cls(
+            connection=ConnectionSlug[step.connection.type.name],
+            from_=StepEndDTO(id=step.start.id, label=node_label(step.start)),
+            to=StepEndDTO(id=step.end.id, label=node_label(step.end)),
+            meters=step.meters, seconds=step.seconds, changes_floor=step.changes_floor,
+            points=[PointDTO(x=point.x, y=point.y, floor_id=point.floor_id)
+                    for point in step.points],
+            movement=None if movement is None else MovementSlug[movement.name],
+        )
+
+
+class RouteDTO(BaseModel):
+    '''The fastest way between two places, as consecutive steps.'''
+    origin: PlaceDTO
+    destination: PlaceDTO
+    seconds: float
+    meters: float
+    steps: list[StepDTO]
+
+    @classmethod
+    def from_route(cls, route: Route) -> 'RouteDTO':
+        '''Builds the DTO of a route.'''
+        movements = (*route.movements, None)
+        return cls(
+            origin=PlaceDTO.from_node(route.origin),
+            destination=PlaceDTO.from_node(route.destination),
+            seconds=route.seconds, meters=route.meters,
+            steps=[StepDTO.from_step(step, movement)
+                   for step, movement in zip(route.steps, movements)],
         )

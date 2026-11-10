@@ -1,7 +1,7 @@
 '''Place routes.'''
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from intramaps.api.dependencies import get_floor_service, get_node_service
+from intramaps.api.dependencies import find_place, get_floor_service, get_node_service
 from intramaps.api.dtos import PLACE_TYPES, PlaceDTO, PlaceTypeSlug
 from intramaps.services.floor_service import FloorService
 from intramaps.services.node_service import NodeService
@@ -27,7 +27,4 @@ def list_places(
 @router.get("/{place_id}", response_model=PlaceDTO)
 def get_place(place_id: int, nodes: NodeService = Depends(get_node_service)):
     '''Returns one place.'''
-    place = nodes.get_place(place_id)
-    if place is None:
-        raise HTTPException(status_code=404, detail=f"lugar {place_id} não encontrado")
-    return PlaceDTO.from_node(place)
+    return PlaceDTO.from_node(find_place(nodes, place_id))
