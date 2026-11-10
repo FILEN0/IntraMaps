@@ -11,6 +11,7 @@ class Route:
         origin: The node where the route begins.
         destination: The node where the route ends.
         seconds: Time to walk the whole route, in seconds.
+        meters: Length of the route in meters, counting the height climbed or descended.
         movements: What to do where each step meets the next one, or None when it does not apply.
     '''
 
@@ -41,6 +42,11 @@ class Route:
     def seconds(self) -> float:
         '''Returns the time to walk the whole route, in seconds.'''
         return sum(step.seconds for step in self.__steps)
+
+    @property
+    def meters(self) -> float:
+        '''Returns the length of the route in meters, counting the height climbed or descended.'''
+        return sum((step.meters or 0.0) + step.rise_m for step in self.__steps)
 
     @property
     def movements(self) -> tuple[EnumMovement | None, ...]:

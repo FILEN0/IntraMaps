@@ -5,7 +5,7 @@ from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.node import Node
 from intramaps.enums.enum_routing import EnumMovement
 
-def _label(node: Node) -> str:
+def node_label(node: Node) -> str:
     '''Returns the name or number of a node, or its type and id when it has neither.'''
     return (getattr(node, "name", None) or getattr(node, "number", None)
             or f"{node.type.name.lower().replace('_', ' ')} {node.id}")
@@ -21,6 +21,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         points: The points of the line.
         changes_floor: Whether the stretch goes from one floor to another.
         meters: Length of the stretch in meters, or None when it changes floors.
+        rise_m: Height climbed or descended along the stretch, in meters.
         seconds: Time to walk the stretch, in seconds.
     '''
 
@@ -81,6 +82,11 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         if self.changes_floor:
             return None
         return self.__geometry.length
+
+    @property
+    def rise_m(self) -> float:
+        '''Returns the height climbed or descended along the stretch, in meters.'''
+        return getattr(self.__connection, "rise_m", 0.0)
 
     def go_to(self, following: 'RouteStep') -> EnumMovement | None:
         '''Finds what to do where this step meets the one that comes next.
