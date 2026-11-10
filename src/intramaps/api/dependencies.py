@@ -1,12 +1,15 @@
 '''FastAPI dependency functions.'''
 from pathlib import Path
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySlug, GenderSlug,
+                                RoleSlug)
 from intramaps.database.database import Database
 from intramaps.database.user_repository import UserRepository
 from intramaps.services.auth_service import AuthService
+from intramaps.users.anonymous import Anonymous
 from intramaps.users.user import User
 
 _DB: Database | None = None
@@ -55,6 +58,20 @@ def get_current_user(
     if user is None:
         raise HTTPException(status_code=401, detail="token inválido ou expirado")
     return user
+
+
+def get_profile( # pylint: disable=too-many-arguments,too-many-positional-arguments
+    credentials: HTTPAuthorizationCredentials | None = Depends(_BEARER),
+    auth: AuthService = Depends(get_auth_service),
+    gender: GenderSlug = GenderSlug.NONE,
+    accessibility: AccessibilitySlug = AccessibilitySlug.NONE,
+    role: RoleSlug = RoleSlug.STUDENT,
+    speed: float = Query(default=User.DEFAULT_SPEED, gt=0, le=User.MAX_SPEED),
+) -> User:
+    '''Returns the logged-in user, or an Anonymous with the profile of the query.'''
+    if credentials is None:
+        return Anonymous(GENDERS[gender], ACCESSIBILITIES[accessibility], ROLES[role], speed)
+    return get_current_user(credentials, auth)
 
 
 def get_current_token(

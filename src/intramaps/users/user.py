@@ -33,6 +33,11 @@ class User: # pylint: disable=too-many-instance-attributes
         return self.__id
 
     @property
+    def is_authenticated(self) -> bool:
+        '''Returns whether the user is logged in.'''
+        return True
+
+    @property
     def name(self) -> str:
         '''Returns the name of the user.'''
         return self.__name
