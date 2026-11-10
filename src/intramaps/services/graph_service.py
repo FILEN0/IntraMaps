@@ -16,6 +16,7 @@ class GraphService:
 
     Args:
         connection_service: The service that loads the connections of the building.
+        floor_service: The service that gives the elevation of each floor.
     '''
 
     def __init__(self, connection_service: ConnectionService, floor_service: FloorService) -> None:
@@ -211,6 +212,9 @@ class GraphService:
     def make_steps(self, path: list[Node], speed: float) -> list[RouteStep]:
         '''Turns the nodes of a way into the steps walked between each pair of them.
 
+        A step that changes floors gets the height of its stairs or elevator, which is negative
+        when it goes down to a floor with a lower elevation.
+
         Args:
             path: The nodes in travel order, as returned by find_path or find_nearest_path.
             speed: Walking speed of the user, in meters per second.
@@ -224,9 +228,13 @@ class GraphService:
         return [self.__make_step(locator, travel_cost, elevations, start, end)
                 for start, end in zip(path, path[1:])]
 
-    def __make_step(self, locator: NodeLocator, travel_cost: TravelCost, elevations: dict,
-                    start: Node, end: Node) -> RouteStep:
-        '''Builds the stretch between two nodes, with the walk from or to a room included.'''
+    def __make_step(self, locator: NodeLocator, travel_cost: TravelCost,
+                    elevations: dict[int, float], start: Node, end: Node) -> RouteStep:
+        '''Builds the stretch between two nodes, with the walk from or to a room included.
+
+        The height of stairs and elevators is negative when the end floor is lower than the start
+        floor, by the elevation of each floor.
+        '''
         connection = locator.connection_between(start, end)
         begin = locator.position_along(connection, start)
         finish = locator.position_along(connection, end)

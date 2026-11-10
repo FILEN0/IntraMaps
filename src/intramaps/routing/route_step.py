@@ -22,7 +22,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         points: The points of the line.
         changes_floor: Whether the stretch goes from one floor to another.
         meters: Length of the stretch in meters, or None when it changes floors.
-        rise_m: Height climbed or descended along the stretch, in meters.
+        rise_m: Height climbed along the stretch in meters, or negative when it goes down.
         seconds: Time to walk the stretch, in seconds.
     '''
 
@@ -118,6 +118,11 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         return None if angle is None else self.__movement(angle)
 
     def __angle_to(self, following: 'RouteStep') -> float | None:
+        '''Finds the turn from this step to the following one, in degrees.
+
+        Positive is to the right. When this step changes floors, the turn is measured from the
+        facing of the node where it ends. It is None when there is no direction to compare.
+        '''
         if following.changes_floor or following.geometry.length == 0:
             return None
         if self.changes_floor:
@@ -138,6 +143,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         return angle
 
     def __movement(self, angle: float) -> EnumMovement:
+        '''Turns the size of a turn, in degrees, into a movement, by the limits of the class.'''
         size = abs(angle)
         right = angle > 0
         if size <= self.STRAIGHT_LIMIT:
