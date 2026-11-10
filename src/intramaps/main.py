@@ -3,6 +3,7 @@ from fastapi import APIRouter, FastAPI
 from starlette.middleware.gzip import GZipMiddleware
 
 from intramaps.api.floors import router as floors_router
+from intramaps.api.places import router as places_router
 from intramaps.api.users import router as users_router
 
 app = FastAPI(
@@ -16,6 +17,7 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 api = APIRouter(prefix="/api/v1")
 api.include_router(users_router)
 api.include_router(floors_router)
+api.include_router(places_router)
 app.include_router(api)
 
 

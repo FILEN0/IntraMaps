@@ -22,3 +22,7 @@ class FloorService:
     def get_plan(self, floor_id: int) -> FloorPlan | None:
         '''Returns the plan of a floor, or None if there is no floor with this id.'''
         return self.__floor_repository.get_plan(floor_id)
+
+    def exists(self, floor_id: int) -> bool:
+        '''Returns whether there is a floor with this id.'''
+        return self.__floor_repository.get_plan(floor_id) is not None

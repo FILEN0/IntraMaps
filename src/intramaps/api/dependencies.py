@@ -8,9 +8,11 @@ from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySl
                                 RoleSlug)
 from intramaps.database.database import Database
 from intramaps.database.floor_repository import FloorRepository
+from intramaps.database.node_repository import NodeRepository
 from intramaps.database.user_repository import UserRepository
 from intramaps.services.auth_service import AuthService
 from intramaps.services.floor_service import FloorService
+from intramaps.services.node_service import NodeService
 from intramaps.users.anonymous import Anonymous
 from intramaps.users.user import User
 
@@ -44,6 +46,11 @@ def get_auth_service(
 def get_floor_service(db: Database = Depends(get_db)) -> FloorService:
     '''Returns a FloorService backed by the shared database.'''
     return FloorService(FloorRepository(db))
+
+
+def get_node_service(db: Database = Depends(get_db)) -> NodeService:
+    '''Returns a NodeService backed by the shared database.'''
+    return NodeService(NodeRepository(db))
 
 
 def _token_from(credentials: HTTPAuthorizationCredentials | None) -> str:
