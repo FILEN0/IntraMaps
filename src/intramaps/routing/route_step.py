@@ -1,4 +1,5 @@
 '''RouteStep class definition.'''
+import math
 from intramaps.building.connections.connection import Connection
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.geometry.geometry import Geometry
@@ -92,18 +93,19 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
     def go_to(self, following: 'RouteStep') -> EnumMovement | None:
         '''Finds what to do where this step meets the one that comes next.
 
-        Only the junction counts, and not the corners inside each step. The size of the turn,
-        in degrees, decides the movement: up to STRAIGHT_LIMIT is straight on, up to SLIGHT_LIMIT
-        is slightly to a side, up to SHARP_LIMIT is to a side, up to BACK_LIMIT is sharply to a
-        side, and more than that is going back.
+        Only the junction counts, and not the corners inside each step. When this step changes
+        floors, the turn is measured from the facing of the node where it ends. The size of the
+        turn, in degrees, decides the movement: up to STRAIGHT_LIMIT is straight on, up to
+        SLIGHT_LIMIT is slightly to a side, up to SHARP_LIMIT is to a side, up to BACK_LIMIT is
+        sharply to a side, and more than that is going back.
 
         Args:
             following: The step that starts where this one ends.
 
         Returns:
             STRAIGHT, SLIGHT_RIGHT, RIGHT, SHARP_RIGHT, BACK or the same three to the left.
-            UP or DOWN when the following step changes floors. It is None when this step changes
-            floors or either step has no length, because there is no direction to compare.
+            UP or DOWN when the following step changes floors. It is None when there is no
+            direction to compare, like a step with no length.
         '''
         if not isinstance(following, RouteStep):
             raise ValueError("following must be a RouteStep object")
@@ -112,14 +114,30 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
             return EnumMovement.UP
         if following.rise_m < 0:
             return EnumMovement.DOWN
-        if (self.changes_floor or following.changes_floor
-                or 0 in (self.geometry.length, following.geometry.length)):
+        angle = self.__angle_to(following)
+        return None if angle is None else self.__movement(angle)
+
+    def __angle_to(self, following: 'RouteStep') -> float | None:
+        if following.changes_floor or following.geometry.length == 0:
+            return None
+        if self.changes_floor:
+            facing = getattr(self.end, "facing", None)
+            if facing is None:
+                return None
+            delta_x, delta_y = following.geometry.departure_point - following.points[0]
+            heading = math.degrees(math.atan2(delta_y, delta_x))
+            print("go_to leaving", self.end.id, "facing", facing, "heading", heading)
+            return (heading - facing + 180) % 360 - 180
+        if self.geometry.length == 0:
             return None
         junction = self.points[-1]
         if following.points[0] != junction:
             raise ValueError("the steps do not meet at the same point")
         angle = junction.turn_angle(self.geometry.approach_point,
                                     following.geometry.departure_point)
+        return angle
+
+    def __movement(self, angle: float) -> EnumMovement:
         size = abs(angle)
         right = angle > 0
         if size <= self.STRAIGHT_LIMIT:
