@@ -235,6 +235,31 @@ class UserRepository:
             for row in rows
         ]
 
+    def get_history_item(self, user_id: int, history_id: int) -> dict | None:
+        '''Returns one history entry by id for a given user.
+
+        Args:
+            user_id: The user (prevents accessing another person's history).
+            history_id: The history entry id.
+
+        Returns:
+            Dict with id, node_a_id, node_b_id and created_at, or None if not found.
+        '''
+        rows = self.__connection.fetch(
+            "SELECT id, node_a_id, node_b_id, created_at FROM history"
+            " WHERE id = ? AND user_id = ?",
+            (history_id, user_id),
+            count=1,
+        )
+        if not rows:
+            return None
+        return {
+            "id": rows[0]["id"],
+            "node_a_id": rows[0]["node_a_id"],
+            "node_b_id": rows[0]["node_b_id"],
+            "created_at": rows[0]["created_at"],
+        }
+
     def delete_history_item(self, user_id: int, history_id: int) -> bool:
         '''Deletes one history entry belonging to the user.
 

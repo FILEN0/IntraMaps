@@ -1,55 +1,16 @@
 '''User routes.'''
-from enum import Enum
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from intramaps.api.dependencies import get_auth_service, get_current_token, get_current_user
-from intramaps.enums.enum_user import EnumAccessibility, EnumGender, EnumRole
+from intramaps.api.dtos import (
+    ACCESSIBILITY_MAP, GENDER_MAP, ROLE_MAP, AccessibilitySlug, GenderSlug, RoleSlug, user_dto,
+)
 from intramaps.services.auth_service import AuthService
 from intramaps.users.user import User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-
-class GenderSlug(str, Enum):
-    '''Gender values as used in the API.'''
-    NONE = "none"
-    MALE = "male"
-    FEMALE = "female"
-    OTHER = "other"
-
-
-class AccessibilitySlug(str, Enum):
-    '''Accessibility values as used in the API.'''
-    NONE = "none"
-    WHEELCHAIR = "wheelchair"
-    CRUTCHES = "crutches"
-
-
-class RoleSlug(str, Enum):
-    '''Role values as used in the API.'''
-    STUDENT = "student"
-    FACULTY = "faculty"
-    STAFF = "staff"
-
-
-_GENDER = {
-    GenderSlug.NONE: EnumGender.NONE,
-    GenderSlug.MALE: EnumGender.MALE,
-    GenderSlug.FEMALE: EnumGender.FEMALE,
-    GenderSlug.OTHER: EnumGender.OTHER,
-}
-_ACCESSIBILITY = {
-    AccessibilitySlug.NONE: EnumAccessibility.NONE,
-    AccessibilitySlug.WHEELCHAIR: EnumAccessibility.WHEELCHAIR,
-    AccessibilitySlug.CRUTCHES: EnumAccessibility.CRUTCHES,
-}
-_ROLE = {
-    RoleSlug.STUDENT: EnumRole.STUDENT,
-    RoleSlug.FACULTY: EnumRole.FACULTY,
-    RoleSlug.STAFF: EnumRole.STAFF,
-}
 
 
 class RegisterBody(BaseModel):
@@ -76,16 +37,6 @@ class UpdateBody(BaseModel):
     speed: float | None = Field(default=None, gt=0)
 
 
-def _user_dto(user: User) -> dict:
-    return {
-        "id": user.id,
-        "username": user.name,
-        "gender": user.gender.name.lower(),
-        "accessibility": user.accessibility.name.lower(),
-        "role": user.role.name.lower(),
-        "speed": user.speed,
-    }
-
 
 @router.post("", status_code=201)
 def register(body: RegisterBody, auth: AuthService = Depends(get_auth_service)):
@@ -93,10 +44,10 @@ def register(body: RegisterBody, auth: AuthService = Depends(get_auth_service)):
     try:
         user = auth.register(
             body.username, body.password,
-            _GENDER[body.gender], _ACCESSIBILITY[body.accessibility],
-            _ROLE[body.role], body.speed,
+            GENDER_MAP[body.gender], ACCESSIBILITY_MAP[body.accessibility],
+            ROLE_MAP[body.role], body.speed,
         )
-        return _user_dto(user)
+        return user_dto(user)
     except ValueError as e:
         raise HTTPException(status_code=409, detail="username já existe") from e
 
@@ -106,7 +57,7 @@ def login(body: LoginBody, auth: AuthService = Depends(get_auth_service)):
     '''Validates credentials and returns a session token.'''
     try:
         token, expires_at, user = auth.login(body.username, body.password)
-        return {"token": token, "expires_at": expires_at, "user": _user_dto(user)}
+        return {"token": token, "expires_at": expires_at, "user": user_dto(user)}
     except PermissionError as e:
         raise HTTPException(status_code=401, detail="usuário ou senha inválidos") from e
 
@@ -123,7 +74,7 @@ def logout(
 @router.get("/me")
 def get_me(user: User = Depends(get_current_user)):
     '''Returns the profile of the logged-in user.'''
-    return _user_dto(user)
+    return user_dto(user)
 
 
 @router.patch("/me")
@@ -136,15 +87,15 @@ def update_me(
     if all(v is None for v in (body.gender, body.accessibility, body.role, body.speed)):
         raise HTTPException(status_code=422, detail="informe ao menos um campo")
     if body.gender is not None:
-        user.gender = _GENDER[body.gender]
+        user.gender = GENDER_MAP[body.gender]
     if body.accessibility is not None:
-        user.accessibility = _ACCESSIBILITY[body.accessibility]
+        user.accessibility = ACCESSIBILITY_MAP[body.accessibility]
     if body.role is not None:
-        user.role = _ROLE[body.role]
+        user.role = ROLE_MAP[body.role]
     if body.speed is not None:
         user.speed = body.speed
     auth.update_user(user)
-    return _user_dto(user)
+    return user_dto(user)
 
 
 @router.delete("/me", status_code=204)

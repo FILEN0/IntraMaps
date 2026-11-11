@@ -134,6 +134,18 @@ class AuthService:
         '''Returns the user's route history, newest first.'''
         return self.__users.list_history(user_id)
 
+    def get_history_item(self, user_id: int, history_id: int) -> dict | None:
+        '''Returns one history entry by id. Returns None if not found or belongs to another user.
+
+        Args:
+            user_id: The user.
+            history_id: The history entry id.
+
+        Returns:
+            Dict with id, node_a_id, node_b_id and created_at, or None.
+        '''
+        return self.__users.get_history_item(user_id, history_id)
+
     def delete_history_item(self, user_id: int, history_id: int) -> bool:
         '''Deletes one history entry. Returns True if deleted, False if not found.'''
         return self.__users.delete_history_item(user_id, history_id)

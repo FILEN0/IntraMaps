@@ -2,7 +2,8 @@
 from fastapi import FastAPI
 from starlette.middleware.gzip import GZipMiddleware
 
-from intramaps.api.users import router as users_router
+from intramaps.api.routes import router as api_routes_router
+from intramaps.api.users import router as api_users_router
 from intramaps.building.router import router as building_router
 from intramaps.routing.router import router as routing_router
 
@@ -16,7 +17,8 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.include_router(building_router)
 app.include_router(routing_router)
-app.include_router(users_router, prefix="/api/v1")
+app.include_router(api_users_router, prefix="/api/v1")
+app.include_router(api_routes_router, prefix="/api/v1")
 
 
 @app.get("/")
