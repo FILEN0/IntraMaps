@@ -30,5 +30,4 @@ class FloorService:
     def elevations(self) -> dict[int, float]:
         '''Returns the height of each floor above the ground floor, in meters, by floor id.'''
         elevations = {floor.id: floor.elevation_m for floor in self.__floor_repository.list_all()}
-        print("elevations", elevations)
         return elevations

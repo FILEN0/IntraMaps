@@ -109,7 +109,6 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         '''
         if not isinstance(following, RouteStep):
             raise ValueError("following must be a RouteStep object")
-        print("go_to", self.end.id, following.end.id, following.rise_m)
         if following.rise_m > 0:
             return EnumMovement.UP
         if following.rise_m < 0:
@@ -131,7 +130,6 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
                 return None
             delta_x, delta_y = following.geometry.departure_point - following.points[0]
             heading = math.degrees(math.atan2(delta_y, delta_x))
-            print("go_to leaving", self.end.id, "facing", facing, "heading", heading)
             return (heading - facing + 180) % 360 - 180
         if self.geometry.length == 0:
             return None
