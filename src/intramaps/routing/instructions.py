@@ -58,7 +58,7 @@ def write_instructions(route: Route) -> list[str]:
     meters = 0.0
     for step, movement, following in zip(route.steps, movements, followings):
         meters += step.meters or 0.0
-        if movement == EnumMovement.STRAIGHT and not step.changes_floor:
+        if movement == EnumMovement.STRAIGHT and step.connection.type == EnumConnection.CORRIDOR:
             continue
         instructions.append(_sentence(step, meters, movement, following))
         meters = 0.0
@@ -78,7 +78,7 @@ def _sentence(step: RouteStep, meters: float, movement: EnumMovement | None,
     Returns:
         The sentence in Portuguese.
     '''
-    if step.changes_floor:
+    if step.connection.type != EnumConnection.CORRIDOR:
         text = CLIMBS[(step.connection.type, step.rise_m > 0)]
         if movement in TURNS:
             return f"{text} e, ao sair, {TURNS[movement]}."

@@ -251,7 +251,10 @@ class GraphService:
                 points.append(end.coordinates)
             points = self.__remove_repeated_points(points)
         rise = getattr(connection, "rise_m", 0.0)
-        if elevations[end.coordinates.floor_id] < elevations[start.coordinates.floor_id]:
+        if start.coordinates.floor_id == end.coordinates.floor_id:
+            if start == connection.node_b:
+                rise = -rise
+        elif elevations[end.coordinates.floor_id] < elevations[start.coordinates.floor_id]:
             rise = -rise
         print("step", start.id, end.id, "rise", rise)
         return RouteStep(connection, start, end, Geometry(points), seconds, rise)

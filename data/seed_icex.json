@@ -395,7 +395,7 @@
     {"id": 56, "type": 0, "from": 43, "to": 45, "waypoints": [[1825, 1715], [1842, 1712], [1859, 1709], [1859, 1760]], "children": []},
     {"id": 57, "type": 0, "from": 34, "to": 219, "waypoints": [], "children": []},
     {"id": 58, "type": 0, "from": 40, "to": 41, "waypoints": [[1677, 1160], [1677, 1272]], "children": []},
-    {"id": 59, "type": 1, "from": 36, "to": 223, "waypoints": [], "rise_m": 0.8},
+    {"id": 59, "type": 1, "from": 36, "to": 223, "waypoints": [], "rise_m": -0.8},
     {"id": 60, "type": 1, "from": 37, "to": 38, "waypoints": [], "rise_m": 0.8},
     {"id": 61, "type": 1, "from": 2, "to": 39, "waypoints": [], "rise_m": 0.6},
     {"id": 62, "type": 1, "from": 37, "to": 42, "waypoints": [[1811, 1398]], "rise_m": 0.8},
