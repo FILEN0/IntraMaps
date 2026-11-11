@@ -201,6 +201,21 @@ class InstructionDTO(BaseModel):
     text: str
 
 
+class HistoryDTO(BaseModel):
+    '''A route that a user asked for, with its two places.'''
+    id: int
+    origin: PlaceDTO
+    destination: PlaceDTO
+    created_at: str
+
+    @classmethod
+    def from_search(cls, search: dict, places: dict[int, Node]) -> 'HistoryDTO':
+        '''Builds the DTO of a search of the history, with the places found by id.'''
+        return cls(id=search["id"], origin=PlaceDTO.from_node(places[search["node_a_id"]]),
+                   destination=PlaceDTO.from_node(places[search["node_b_id"]]),
+                   created_at=search["created_at"])
+
+
 class InstructionsDTO(BaseModel):
     '''A route told in words, with one sentence for each step.'''
     instructions: list[InstructionDTO]

@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from intramaps.api.dependencies import (find_place, get_auth_service, get_current_token,
                                         get_current_user, get_node_service)
 from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySlug, GenderSlug,
-                                PlaceDTO, RoleSlug)
+                                HistoryDTO, PlaceDTO, RoleSlug)
 from intramaps.services.auth_service import AuthService
 from intramaps.services.node_service import NodeService
 from intramaps.users.user import User
@@ -182,15 +182,16 @@ def remove_favorite(
     auth.remove_favorite(user.id, place_id)
 
 
-@router.get("/me/history")
+@router.get("/me/history", response_model=list[HistoryDTO])
 def get_history(
     user: User = Depends(get_current_user),
     auth: AuthService = Depends(get_auth_service),
+    nodes: NodeService = Depends(get_node_service),
 ):
-    '''Returns the user's route history, newest first.
-    TODO: integrate with NodeService to return full PlaceDTOs in origin/destination.
-    '''
-    return auth.list_history(user.id)
+    '''Returns the user's route history, newest first.'''
+    places = {place.id: place for place in nodes.find_places()}
+    return [HistoryDTO.from_search(search, places) for search in auth.list_history(user.id)
+            if search["node_a_id"] in places and search["node_b_id"] in places]
 
 
 @router.delete("/me/history/{history_id}", status_code=204)
