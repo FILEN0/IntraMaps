@@ -4,10 +4,12 @@ import string
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from intramaps.api.dependencies import get_auth_service, get_current_token, get_current_user
+from intramaps.api.dependencies import (find_place, get_auth_service, get_current_token,
+                                        get_current_user, get_node_service)
 from intramaps.api.dtos import (ACCESSIBILITIES, GENDERS, ROLES, AccessibilitySlug, GenderSlug,
-                                RoleSlug)
+                                PlaceDTO, RoleSlug)
 from intramaps.services.auth_service import AuthService
+from intramaps.services.node_service import NodeService
 from intramaps.users.user import User
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -146,15 +148,16 @@ def delete_me(
     auth.delete_user(user.id)
 
 
-@router.get("/me/favorites")
+@router.get("/me/favorites", response_model=list[PlaceDTO])
 def get_favorites(
     user: User = Depends(get_current_user),
     auth: AuthService = Depends(get_auth_service),
+    nodes: NodeService = Depends(get_node_service),
 ):
-    '''Returns the ids of the user's favorite places.
-    TODO: integrate with NodeService to return full PlaceDTOs.
-    '''
-    return auth.list_favorites(user.id)
+    '''Returns the user's favorite places, ordered by id.'''
+    places = {place.id: place for place in nodes.find_places()}
+    return [PlaceDTO.from_node(places[place_id]) for place_id in auth.list_favorites(user.id)
+            if place_id in places]
 
 
 @router.put("/me/favorites/{place_id}", status_code=204)
@@ -162,8 +165,10 @@ def add_favorite(
     place_id: int,
     user: User = Depends(get_current_user),
     auth: AuthService = Depends(get_auth_service),
+    nodes: NodeService = Depends(get_node_service),
 ):
     '''Adds a place to the user's favorites.'''
+    find_place(nodes, place_id)
     auth.add_favorite(user.id, place_id)
 
 
