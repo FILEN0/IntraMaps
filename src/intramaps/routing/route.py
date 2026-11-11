@@ -53,7 +53,7 @@ class Route:
         '''Returns what to do where each step meets the next one.
 
         Only the junctions between steps count, and not the corners inside a step. A movement is
-        UP or DOWN before a step that changes floors (stairs, elevator), and after it the turn
+        UP or DOWN before a step that goes up or down (stairs, elevator), and after it the turn
         made when stepping off. A route with n steps has n - 1 movements.
         '''
         return tuple(arriving.go_to(leaving)

@@ -104,7 +104,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
 
         Returns:
             STRAIGHT, SLIGHT_RIGHT, RIGHT, SHARP_RIGHT, BACK or the same three to the left.
-            UP or DOWN when the following step changes floors. It is None when there is no
+            UP or DOWN when the following step goes up or down. It is None when there is no
             direction to compare, like a step with no length.
         '''
         if not isinstance(following, RouteStep):

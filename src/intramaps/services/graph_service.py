@@ -212,8 +212,9 @@ class GraphService:
     def make_steps(self, path: list[Node], speed: float) -> list[RouteStep]:
         '''Turns the nodes of a way into the steps walked between each pair of them.
 
-        A step that changes floors gets the height of its stairs or elevator, which is negative
-        when it goes down to a floor with a lower elevation.
+        A step on stairs or in an elevator gets their height, which is negative when it goes down:
+        to a floor with a lower elevation, or, on stairs that stay on one floor, from node_b to
+        node_a.
 
         Args:
             path: The nodes in travel order, as returned by find_path or find_nearest_path.
@@ -232,8 +233,9 @@ class GraphService:
                     elevations: dict[int, float], start: Node, end: Node) -> RouteStep:
         '''Builds the stretch between two nodes, with the walk from or to a room included.
 
-        The height of stairs and elevators is negative when the end floor is lower than the start
-        floor, by the elevation of each floor.
+        The height of stairs and elevators is negative when the step goes down: when the end floor
+        is lower than the start floor, by the elevation of each floor, or, on stairs that stay on
+        one floor, when it goes from node_b to node_a.
         '''
         connection = locator.connection_between(start, end)
         begin = locator.position_along(connection, start)
