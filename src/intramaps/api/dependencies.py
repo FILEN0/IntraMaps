@@ -12,6 +12,7 @@ from intramaps.database.database import Database
 from intramaps.database.floor_repository import FloorRepository
 from intramaps.database.node_repository import NodeRepository
 from intramaps.database.user_repository import UserRepository
+from intramaps.enums.enum_user import EnumRole
 from intramaps.services.auth_service import AuthService
 from intramaps.services.connection_service import ConnectionService
 from intramaps.services.floor_service import FloorService
@@ -93,6 +94,17 @@ def get_current_user(
     user = auth.get_user_from_token(_token_from(credentials))
     if user is None:
         raise HTTPException(status_code=401, detail="token inválido ou expirado")
+    return user
+
+
+def get_staff(user: User = Depends(get_current_user)) -> User:
+    '''Returns the logged-in user, but only if they are staff.
+
+    Raises:
+        HTTPException 401: If the token is missing, invalid or expired, or the user is not staff.
+    '''
+    if user.role != EnumRole.STAFF:
+        raise HTTPException(status_code=401, detail="acesso restrito ao papel staff")
     return user
 
 
