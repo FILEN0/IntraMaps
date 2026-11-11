@@ -228,10 +228,12 @@
     {"id": 218, "type": 9, "floor_id": 2, "x": 1592, "y": 1100},
     {"id": 219, "type": 9, "floor_id": 1, "x": 2010, "y": 1827},
     {"id": 220, "type": 9, "floor_id": 1, "x": 2010, "y": 1901},
+    {"id": 221, "type": 10, "floor_id": 2, "x": 1666, "y": 1126, "facing": 180},
     {"id": 222, "type": 9, "floor_id": 1, "x": 2418, "y": 1068},
     {"id": 223, "type": 10, "floor_id": 1, "x": 2426, "y": 1051, "facing": 90},
     {"id": 224, "type": 9, "floor_id": 1, "x": 2502, "y": 1110},
-    {"id": 225, "type": 1, "floor_id": 1, "x": 2418, "y": 1068, "name": "Portaria Secundária"}
+    {"id": 225, "type": 1, "floor_id": 1, "x": 2418, "y": 1068, "name": "Portaria Secundária"},
+    {"id": 226, "type": 10, "floor_id": 2, "x": 1696, "y": 1126, "facing": 0}
   ],
   "connections": [
     {"id": 1, "type": 0, "from": 1, "to": 2, "waypoints": [],
@@ -398,13 +400,13 @@
     {"id": 61, "type": 1, "from": 2, "to": 39, "waypoints": [], "rise_m": 0.6},
     {"id": 62, "type": 1, "from": 37, "to": 42, "waypoints": [[1811, 1398]], "rise_m": 0.8},
     {"id": 63, "type": 1, "from": 37, "to": 43, "waypoints": [[1811, 1545]], "rise_m": 0.8},
-    {"id": 64, "type": 0, "from": 101, "to": 102, "waypoints": [],
+    {"id": 64, "type": 0, "from": 102, "to": 226, "waypoints": [],
      "children": [
-       {"node": 166, "position": 0.4347},
-       {"node": 165, "position": 0.4794},
-       {"node": 164, "position": 0.6322},
-       {"node": 163, "position": 0.6862},
-       {"node": 162, "position": 0.785}
+       {"node": 166, "position": 0.6441},
+       {"node": 165, "position": 0.5932},
+       {"node": 164, "position": 0.4192},
+       {"node": 163, "position": 0.3576},
+       {"node": 162, "position": 0.2452}
      ]},
     {"id": 65, "type": 0, "from": 102, "to": 103, "waypoints": [], "children": []},
     {"id": 66, "type": 0, "from": 103, "to": 104, "waypoints": [],
@@ -601,6 +603,8 @@
        {"node": 225, "position": 1.0}
      ]},
     {"id": 113, "type": 0, "from": 222, "to": 223, "waypoints": [], "children": []},
-    {"id": 114, "type": 0, "from": 222, "to": 224, "waypoints": [], "children": []}
+    {"id": 114, "type": 0, "from": 222, "to": 224, "waypoints": [], "children": []},
+    {"id": 115, "type": 0, "from": 101, "to": 221, "waypoints": [], "children": []},
+    {"id": 116, "type": 1, "from": 221, "to": 226, "waypoints": [], "rise_m": 0.5}
   ]
 }
