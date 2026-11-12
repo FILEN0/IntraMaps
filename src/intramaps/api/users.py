@@ -90,7 +90,7 @@ def register(body: RegisterBody, auth: AuthService = Depends(get_auth_service)):
         )
         return _user_dto(user)
     except ValueError as e:
-        raise HTTPException(status_code=409, detail="username já existe") from e
+        raise HTTPException(status_code=400, detail="username já existe") from e
 
 
 @router.post("/login")
