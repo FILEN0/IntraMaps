@@ -1,0 +1,479 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-10T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v13.0.0",
+  "resources": [
+    {
+      "_id": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "IntraMaps API",
+      "description": "IntraMaps API: one request for each route, each with a short test.\n\nRun:\n1. python helpers/load_demo.py\n2. uvicorn intramaps.main:app\n3. In Insomnia 10 or newer, import this file, open the collection, click \"Run Collection\" and then \"Run\".\n\nThe requests run top to bottom and share the token saved by Login. The run creates one user and deletes it in the last request, so it can be repeated (Login appears twice because Logout ends the first session). If the API is not at http://127.0.0.1:8000, change \"host\" in the environment.",
+      "scope": "collection",
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "env_593616de15330c0fb2d55e55410bf994",
+      "_type": "environment",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "Base Environment",
+      "data": {
+        "host": "http://127.0.0.1:8000",
+        "base_url": "{{ _.host }}/api/v1",
+        "username": "",
+        "password": "senha123",
+        "token": "",
+        "history_id": ""
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "host",
+          "base_url",
+          "username",
+          "password",
+          "token",
+          "history_id"
+        ]
+      },
+      "metaSortKey": 1794268800000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "fld_9aa1b03934893d7134a660af4204f2a9",
+      "_type": "request_group",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "Server",
+      "metaSortKey": 1794268801000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_75a16c5972f4c923b05616df05001f2c",
+      "_type": "request",
+      "parentId": "fld_9aa1b03934893d7134a660af4204f2a9",
+      "name": "Health check",
+      "method": "GET",
+      "url": "{{ _.host }}/",
+      "afterResponseScript": "insomnia.test('the API is running', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(insomnia.response.json().message).to.equal('IntraMaps API rodando');\n});\n",
+      "metaSortKey": 1794268802000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "fld_08bd40c7543007ad06e4fce31618f6ec",
+      "_type": "request_group",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "Account",
+      "metaSortKey": 1794268803000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_4c9eb476a41560ee45eb0892a497274c",
+      "_type": "request",
+      "parentId": "fld_08bd40c7543007ad06e4fce31618f6ec",
+      "name": "Register",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users",
+      "description": "The pre-request script makes a new username for each run.",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"username\": \"{{ _.username }}\", \"password\": \"{{ _.password }}\"}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "preRequestScript": "insomnia.environment.set('username', 'demo_' + Date.now().toString(36));\n",
+      "afterResponseScript": "insomnia.test('the user is created', () => {\n  insomnia.expect(insomnia.response.code).to.equal(201);\n  insomnia.expect(insomnia.response.json().username).to.equal(insomnia.environment.get('username'));\n});\n",
+      "metaSortKey": 1794268804000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_d584845af25f635ce92cced474ba972b",
+      "_type": "request",
+      "parentId": "fld_08bd40c7543007ad06e4fce31618f6ec",
+      "name": "Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users/login",
+      "description": "Saves the token used by the next requests.",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"username\": \"{{ _.username }}\", \"password\": \"{{ _.password }}\"}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "insomnia.test('login gives a token', () => {\n  const body = insomnia.response.json();\n  insomnia.environment.set('token', body.token);\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(body.token).to.be.a('string');\n});\n",
+      "metaSortKey": 1794268805000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_8078a820b99b9f6abb105715f67e008b",
+      "_type": "request",
+      "parentId": "fld_08bd40c7543007ad06e4fce31618f6ec",
+      "name": "Get profile",
+      "method": "GET",
+      "url": "{{ _.base_url }}/users/me",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the profile is the logged-in user', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(insomnia.response.json().username).to.equal(insomnia.environment.get('username'));\n});\n",
+      "metaSortKey": 1794268806000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_2e119b2661028a09526a5e2c11a4ab73",
+      "_type": "request",
+      "parentId": "fld_08bd40c7543007ad06e4fce31618f6ec",
+      "name": "Update profile",
+      "method": "PATCH",
+      "url": "{{ _.base_url }}/users/me",
+      "description": "The routes below use this saved profile.",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"gender\": \"male\"}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the gender is updated', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(insomnia.response.json().gender).to.equal('male');\n});\n",
+      "metaSortKey": 1794268807000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "fld_c39b56d4489fb2507289e7ae19567b80",
+      "_type": "request_group",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "Building",
+      "metaSortKey": 1794268808000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_29537bf467ab7fbcc23a67380a87bd51",
+      "_type": "request",
+      "parentId": "fld_c39b56d4489fb2507289e7ae19567b80",
+      "name": "List floors",
+      "method": "GET",
+      "url": "{{ _.base_url }}/floors",
+      "afterResponseScript": "insomnia.test('the floors come with their plan url', () => {\n  const floors = insomnia.response.json();\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(floors.length).to.be.at.least(2);\n  insomnia.expect(floors[0].plan_url).to.include('/floors/1/plan');\n});\n",
+      "metaSortKey": 1794268809000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_c8dda8447077b80bd94af4d5ea1a8377",
+      "_type": "request",
+      "parentId": "fld_c39b56d4489fb2507289e7ae19567b80",
+      "name": "Floor plan",
+      "method": "GET",
+      "url": "{{ _.base_url }}/floors/1/plan",
+      "afterResponseScript": "insomnia.test('the plan is a PNG image', () => {\n  const type = insomnia.response.headers.find((header) => header.key.toLowerCase() === 'content-type');\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(type.value).to.equal('image/png');\n});\n",
+      "metaSortKey": 1794268810000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_04064ec75836437a29fba71d9ffc9d53",
+      "_type": "request",
+      "parentId": "fld_c39b56d4489fb2507289e7ae19567b80",
+      "name": "List places",
+      "method": "GET",
+      "url": "{{ _.base_url }}/places",
+      "parameters": [
+        {
+          "name": "type",
+          "value": "washroom"
+        },
+        {
+          "name": "floor",
+          "value": "1"
+        }
+      ],
+      "afterResponseScript": "insomnia.test('the washrooms of floor 1', () => {\n  const places = insomnia.response.json();\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(places.length).to.be.above(0);\n  insomnia.expect(places.every((place) => place.type === 'washroom' && place.floor_id === 1)).to.equal(true);\n});\n",
+      "metaSortKey": 1794268811000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_e6638c8449c67caad879c18c706f2a04",
+      "_type": "request",
+      "parentId": "fld_c39b56d4489fb2507289e7ae19567b80",
+      "name": "Get place",
+      "method": "GET",
+      "url": "{{ _.base_url }}/places/46",
+      "afterResponseScript": "insomnia.test('the place is room 1001', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(insomnia.response.json().number).to.equal('1001');\n});\n",
+      "metaSortKey": 1794268812000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "fld_b41067229f91bece9cdfc66681cdd7a3",
+      "_type": "request_group",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "Routes",
+      "metaSortKey": 1794268813000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_0e62e54c80f9ca19c30fd17c27bb0fc5",
+      "_type": "request",
+      "parentId": "fld_b41067229f91bece9cdfc66681cdd7a3",
+      "name": "Route",
+      "method": "GET",
+      "url": "{{ _.base_url }}/routes/46/to/128",
+      "description": "Room 1001 to room 2001, on the other floor. Logged in, so it goes into the history.",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the route goes up to room 2001', () => {\n  const route = insomnia.response.json();\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(route.destination.number).to.equal('2001');\n  insomnia.expect(route.steps.some((step) => step.changes_floor)).to.equal(true);\n});\n",
+      "metaSortKey": 1794268814000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_6687c243d4f6700df27db79339a7ff95",
+      "_type": "request",
+      "parentId": "fld_b41067229f91bece9cdfc66681cdd7a3",
+      "name": "Route instructions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/routes/46/to/128/instructions",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('one sentence for each step', () => {\n  const texts = insomnia.response.json().instructions.map((item) => item.text);\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(texts.length).to.be.above(1);\n  insomnia.expect(texts[texts.length - 1]).to.include('2001');\n});\n",
+      "metaSortKey": 1794268815000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_86b189f0d07108aad93259789c8a3c02",
+      "_type": "request",
+      "parentId": "fld_b41067229f91bece9cdfc66681cdd7a3",
+      "name": "Nearest washroom",
+      "method": "GET",
+      "url": "{{ _.base_url }}/routes/46/nearest/washroom",
+      "description": "No gender in the query: the saved profile (male) is used.",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the nearest washroom is for men', () => {\n  const route = insomnia.response.json();\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(route.destination.type).to.equal('washroom');\n  insomnia.expect(route.destination.gender_restriction).to.equal('male');\n});\n",
+      "metaSortKey": 1794268816000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_2be3ada3c70d2f21b7390c6b2002f77e",
+      "_type": "request",
+      "parentId": "fld_b41067229f91bece9cdfc66681cdd7a3",
+      "name": "Nearest instructions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/routes/46/nearest/washroom/instructions",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the last sentence is the washroom', () => {\n  const texts = insomnia.response.json().instructions.map((item) => item.text);\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(texts[texts.length - 1]).to.include('Sanitário');\n});\n",
+      "metaSortKey": 1794268817000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "_type": "request_group",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "History and favorites",
+      "metaSortKey": 1794268818000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_0ce0f0be56429b49f9f5b1bbfa5ab3c4",
+      "_type": "request",
+      "parentId": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "name": "Add favorite",
+      "method": "PUT",
+      "url": "{{ _.base_url }}/users/me/favorites/46",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the favorite is added', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});\n",
+      "metaSortKey": 1794268819000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_72aeb0298f00ea317b4881f1a3a86596",
+      "_type": "request",
+      "parentId": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "name": "List favorites",
+      "method": "GET",
+      "url": "{{ _.base_url }}/users/me/favorites",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the favorite is listed', () => {\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(insomnia.response.json().map((place) => place.id)).to.eql([46]);\n});\n",
+      "metaSortKey": 1794268820000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_29982e981b4a49ec15840d0a90352ad1",
+      "_type": "request",
+      "parentId": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "name": "Remove favorite",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/users/me/favorites/46",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the favorite is removed', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});\n",
+      "metaSortKey": 1794268821000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_f9972a6f45bee09ca883db1e43c8d051",
+      "_type": "request",
+      "parentId": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "name": "List history",
+      "method": "GET",
+      "url": "{{ _.base_url }}/users/me/history",
+      "description": "Saves the id of the newest item for the next request.",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the two routes are in the history', () => {\n  const history = insomnia.response.json();\n  insomnia.environment.set('history_id', history[0].id);\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(history.length).to.equal(2);\n});\n",
+      "metaSortKey": 1794268822000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_0f533a44dfaecb6093164cd36d9d5211",
+      "_type": "request",
+      "parentId": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "name": "Delete history item",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/users/me/history/{{ _.history_id }}",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the item is deleted', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});\n",
+      "metaSortKey": 1794268823000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_e41cec3ba0bc4f13e02e200727b6c4c2",
+      "_type": "request",
+      "parentId": "fld_a33a4aa80a6c9d2cdc9b1130b093d899",
+      "name": "Clear history",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/users/me/history",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the history is cleared', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});\n",
+      "metaSortKey": 1794268824000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "fld_87557f11575c0ad78e4e28abedc13b6e",
+      "_type": "request_group",
+      "parentId": "wrk_1629dee48cc4e53161f9b2be8614e062",
+      "name": "End",
+      "metaSortKey": 1794268825000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_9a272cf206e369afb347252022880f5e",
+      "_type": "request",
+      "parentId": "fld_87557f11575c0ad78e4e28abedc13b6e",
+      "name": "Logout",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users/logout",
+      "description": "Closes the session, so the token stops working.",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the session is closed', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});\n",
+      "metaSortKey": 1794268826000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_7ec5b380d9e8e68ceb800b0a8296901b",
+      "_type": "request",
+      "parentId": "fld_87557f11575c0ad78e4e28abedc13b6e",
+      "name": "Login again",
+      "method": "POST",
+      "url": "{{ _.base_url }}/users/login",
+      "description": "A new token, to delete the account.",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\"username\": \"{{ _.username }}\", \"password\": \"{{ _.password }}\"}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "afterResponseScript": "insomnia.test('login gives a new token', () => {\n  const body = insomnia.response.json();\n  insomnia.environment.set('token', body.token);\n  insomnia.expect(insomnia.response.code).to.equal(200);\n  insomnia.expect(body.token).to.be.a('string');\n});\n",
+      "metaSortKey": 1794268827000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    },
+    {
+      "_id": "req_ef0c48ee9956f7d0a96947306840a87c",
+      "_type": "request",
+      "parentId": "fld_87557f11575c0ad78e4e28abedc13b6e",
+      "name": "Delete account",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/users/me",
+      "description": "Leaves the database as it was before the run.",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.token }}"
+      },
+      "afterResponseScript": "insomnia.test('the account is deleted', () => {\n  insomnia.expect(insomnia.response.code).to.equal(204);\n});\n",
+      "metaSortKey": 1794268828000,
+      "created": 1794268800000,
+      "modified": 1794268800000
+    }
+  ]
+}
