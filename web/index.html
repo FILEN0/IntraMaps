@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IntraMaps</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='9' fill='%231F3A5F'/%3E%3Cpath d='M9 24h8a4 4 0 0 0 4-4v-4a4 4 0 0 1 4-4' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='9' cy='24' r='2.6' fill='white'/%3E%3Ccircle cx='25' cy='12' r='3.4' fill='%23E8590C'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="#1F3A5F"/><path d="M9 24h8a4 4 0 0 0 4-4v-4a4 4 0 0 1 4-4" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"/><circle cx="9" cy="24" r="2.6" fill="#FFFFFF"/><circle cx="25" cy="12" r="3.4" fill="#E8590C"/></svg>
+    <span class="brand-name">IntraMaps</span>
+    <span class="chip" id="building">ICEx</span>
+  </div>
+  <div class="account" id="account"></div>
+</header>
+
+<div class="layout">
+  <aside class="panel" id="panel">
+
+    <section class="block">
+      <h1>Para onde você vai?</h1>
+      <div class="fields">
+        <div class="fields-col">
+          <div class="combo">
+            <label class="field">
+              <span class="mark from" aria-hidden="true"></span>
+              <span class="lbl-short">De</span>
+              <input id="in-from" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-from" autocomplete="off" placeholder="Sala, sanitário, cantina…">
+            </label>
+            <ul id="list-from" class="options" role="listbox" hidden></ul>
+          </div>
+          <div class="combo">
+            <label class="field">
+              <span class="mark to" aria-hidden="true"></span>
+              <span class="lbl-short">Para</span>
+              <input id="in-to" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="list-to" autocomplete="off" placeholder="Sala, sanitário, cantina…">
+            </label>
+            <ul id="list-to" class="options" role="listbox" hidden></ul>
+          </div>
+        </div>
+        <div class="fields-side">
+          <button type="button" class="icon-btn bordered" id="btn-swap" aria-label="Trocar origem e destino">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v14M7 18l-3-3M7 18l3-3M17 20V6M17 6l-3 3M17 6l3 3"/></svg>
+          </button>
+          <button type="button" class="icon-btn bordered" id="btn-fav" aria-label="Favoritar o destino" aria-pressed="false" hidden>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.5 2.9 1-6.1L3.1 9.5l6.1-.9z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="nearest" id="nearest"></div>
+    </section>
+
+    <section class="block" id="profile"></section>
+
+    <div class="alert" id="msg" role="alert" hidden></div>
+
+    <section class="summary" id="summary" hidden></section>
+
+    <section class="block" id="steps-block" hidden>
+      <h2 class="eyebrow">Instruções</h2>
+      <div class="steps" id="steps"></div>
+    </section>
+
+  </aside>
+
+  <main class="stage">
+    <div class="map" id="map">
+      <svg class="map-svg" id="map-svg" role="img" aria-label="Planta do andar com a rota"></svg>
+      <div class="overlay" id="overlay"></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="zoom">
+        <button type="button" data-zoom="in" aria-label="Aproximar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <button type="button" data-zoom="out" aria-label="Afastar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+        <button type="button" data-zoom="fit" aria-label="Ajustar à rota"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+      <div class="scale" id="scale"></div>
+      <div class="hint" id="hint">Escolha a origem e o destino para ver a rota na planta.</div>
+    </div>
+  </main>
+</div>
+
+<dialog id="dlg-login" class="dlg" aria-labelledby="t-login">
+  <form id="f-login" class="dlg-form" novalidate>
+    <div class="dlg-head">
+      <h2 id="t-login">Entrar</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <label class="lbl">Usuário<input id="l-user" class="inp" type="text" autocomplete="username" autocapitalize="none" required></label>
+    <label class="lbl">Senha<input id="l-pass" class="inp" type="password" autocomplete="current-password" required></label>
+    <div class="alert" id="l-err" role="alert" hidden></div>
+    <button class="btn primary block" type="submit">Entrar</button>
+    <button class="btn link" type="button" id="go-register">Ainda não tem conta? Criar conta</button>
+  </form>
+</dialog>
+
+<dialog id="dlg-register" class="dlg" aria-labelledby="t-register">
+  <form id="f-register" class="dlg-form" novalidate>
+    <div class="dlg-head">
+      <h2 id="t-register">Criar conta</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <label class="lbl">Usuário<input id="r-user" class="inp" type="text" autocomplete="username" autocapitalize="none" placeholder="ex.: ana_silva" required><span class="help">3 a 20 caracteres: letras minúsculas, números, _ e .</span></label>
+    <label class="lbl">Senha<input id="r-pass" class="inp" type="password" autocomplete="new-password" required><span class="help">6 a 64 caracteres, com ao menos uma letra e um número.</span></label>
+    <label class="lbl">Gênero
+      <select id="r-gender" class="inp">
+        <option value="none">Prefiro não informar</option>
+        <option value="male">Masculino</option>
+        <option value="female">Feminino</option>
+        <option value="other">Outro</option>
+      </select>
+    </label>
+    <label class="lbl">Acessibilidade
+      <select id="r-access" class="inp">
+        <option value="none">Nenhuma</option>
+        <option value="wheelchair">Cadeira de rodas</option>
+        <option value="crutches">Muletas</option>
+      </select>
+    </label>
+    <label class="lbl">Vínculo
+      <select id="r-role" class="inp">
+        <option value="student">Aluno</option>
+        <option value="faculty">Professor</option>
+        <option value="staff">Funcionário (staff)</option>
+      </select>
+    </label>
+    <label class="lbl"><span class="row-between"><span>Velocidade ao caminhar</span><output id="r-speed-out">1,4 m/s</output></span>
+      <input id="r-speed" type="range" min="0.5" max="3" step="0.1" value="1.4">
+    </label>
+    <div class="alert" id="r-err" role="alert" hidden></div>
+    <button class="btn primary block" type="submit">Cadastrar</button>
+    <button class="btn link" type="button" id="go-login">Já tem conta? Entrar</button>
+  </form>
+</dialog>
+
+<dialog id="dlg-account" class="dlg wide" aria-labelledby="acc-name">
+  <div class="dlg-form">
+    <div class="dlg-head">
+      <div class="who-box">
+        <span class="avatar big" id="acc-avatar" aria-hidden="true"></span>
+        <div class="who-text"><h2 id="acc-name"></h2><span class="chip" id="acc-role"></span></div>
+      </div>
+      <button type="button" class="icon-btn" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="acc-tabs" id="acc-tabs" role="tablist"></div>
+    <div class="acc-body" id="acc-body"></div>
+  </div>
+</dialog>
+
+<script src="api.js"></script>
+<script src="map.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

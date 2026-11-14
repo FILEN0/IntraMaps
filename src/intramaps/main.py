@@ -1,5 +1,6 @@
 '''IntraMaps API entry point.'''
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 
 from intramaps.api.floors import router as floors_router
@@ -14,6 +15,8 @@ app = FastAPI(
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=500)
+# "null" is the origin of a page opened from a file, like web/index.html
+app.add_middleware(CORSMiddleware, allow_origins=["null"], allow_methods=["*"], allow_headers=["*"])
 
 api = APIRouter(prefix="/api/v1")
 api.include_router(users_router)
