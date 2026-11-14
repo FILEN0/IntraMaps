@@ -75,7 +75,7 @@ def load_connections(seed: dict, scales: dict[int, float], floors: dict[int, Flo
         scale = scales[node_a.coordinates.floor_id]
         row = {
             "id": item["id"], "type": item["type"],
-            "node_a_id": item["from"], "node_b_id": item["to"], "status": 0,
+            "node_a_id": item["from"], "node_b_id": item["to"], "status": item.get("status", 0),
             "rise_m": rise_of(item, floors, node_a, node_b),
             "wait_time_s": item.get("wait_time_s", 0),
         }
