@@ -10,9 +10,16 @@ class User: # pylint: disable=too-many-instance-attributes
         accessibility: Accessibility needs of the user, which can influence navigation and access.
         role: Role of the user, which can influence access and permissions.
         speed: Walking speed of the user in meters per second, used to measure distances in time.
+        travel_speed: Speed the user travels at, which is the walking speed times a factor.
     '''
 
     DEFAULT_SPEED = 1.4
+    MAX_SPEED = 10
+    SPEED_FACTORS = {
+        EnumAccessibility.NONE: 1.0,
+        EnumAccessibility.WHEELCHAIR: 0.8,
+        EnumAccessibility.CRUTCHES: 0.5,
+    }
 
     def __init__(self, user_id: int, user_name: str, user_gender: EnumGender, # pylint: disable=too-many-arguments,too-many-positional-arguments
                  user_accessibility: EnumAccessibility, user_role: EnumRole,
@@ -30,6 +37,11 @@ class User: # pylint: disable=too-many-instance-attributes
     def id(self) -> int:
         '''Returns the unique identifier for the user.'''
         return self.__id
+
+    @property
+    def is_authenticated(self) -> bool:
+        '''Returns whether the user is logged in.'''
+        return True
 
     @property
     def name(self) -> str:
@@ -87,3 +99,12 @@ class User: # pylint: disable=too-many-instance-attributes
         if user_speed <= 0:
             raise ValueError("speed must be positive")
         self.__speed = user_speed
+
+    @property
+    def travel_speed(self) -> float:
+        '''Returns the speed the user travels at in meters per second.
+
+        It is the walking speed times the factor of the accessibility, so people with
+        accessibility needs take longer to get anywhere.
+        '''
+        return self.__speed * self.SPEED_FACTORS[self.__accessibility]

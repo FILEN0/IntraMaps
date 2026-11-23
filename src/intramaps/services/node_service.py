@@ -22,6 +22,11 @@ class NodeService:
         '''
         return {node.id: node for node in self.__node_repository.list_all()}
 
+    def get_place(self, node_id: int) -> Node | None:
+        '''Returns the place with this id, or None. A PseudoNode is not a place.'''
+        node = self.get_nodes().get(node_id)
+        return None if isinstance(node, PseudoNode) else node
+
     def find_places(self, text: str | None = None, node_type: EnumNode | None = None,
                     floor_id: int | None = None) -> list[Node]:
         '''Finds the places a user can search for, which are the nodes that are not PseudoNodes.

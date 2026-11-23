@@ -1,11 +1,12 @@
 '''RouteStep class definition.'''
+import math
 from intramaps.building.connections.connection import Connection
 from intramaps.building.geometry.coordinates import Coordinates
 from intramaps.building.geometry.geometry import Geometry
 from intramaps.building.nodes.node import Node
 from intramaps.enums.enum_routing import EnumMovement
 
-def _label(node: Node) -> str:
+def node_label(node: Node) -> str:
     '''Returns the name or number of a node, or its type and id when it has neither.'''
     return (getattr(node, "name", None) or getattr(node, "number", None)
             or f"{node.type.name.lower().replace('_', ' ')} {node.id}")
@@ -21,6 +22,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         points: The points of the line.
         changes_floor: Whether the stretch goes from one floor to another.
         meters: Length of the stretch in meters, or None when it changes floors.
+        rise_m: Height climbed along the stretch in meters, or negative when it goes down.
         seconds: Time to walk the stretch, in seconds.
     '''
 
@@ -30,7 +32,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
     BACK_LIMIT = 160
 
     def __init__(self, connection: Connection, start: Node, end: Node,
-                 geometry: Geometry, seconds: float):
+                 geometry: Geometry, seconds: float, rise_m: float = 0.0):
         if not isinstance(connection, Connection):
             raise ValueError("connection must be an instance of Connection")
         if not isinstance(start, Node) or not isinstance(end, Node):
@@ -44,6 +46,7 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
         self.__end = end
         self.__geometry = geometry
         self.__seconds = seconds
+        self.__rise_m = rise_m
 
     @property
     def connection(self) -> Connection:
@@ -82,32 +85,63 @@ class RouteStep: # pylint: disable=too-many-arguments,too-many-positional-argume
             return None
         return self.__geometry.length
 
+    @property
+    def rise_m(self) -> float:
+        '''Returns the height climbed, or descended if negative, in meters.'''
+        return self.__rise_m
+
     def go_to(self, following: 'RouteStep') -> EnumMovement | None:
         '''Finds what to do where this step meets the one that comes next.
 
-        Only the junction counts, and not the corners inside each step. The size of the turn,
-        in degrees, decides the movement: up to STRAIGHT_LIMIT is straight on, up to SLIGHT_LIMIT
-        is slightly to a side, up to SHARP_LIMIT is to a side, up to BACK_LIMIT is sharply to a
-        side, and more than that is going back.
+        Only the junction counts, and not the corners inside each step. When this step changes
+        floors, the turn is measured from the facing of the node where it ends. The size of the
+        turn, in degrees, decides the movement: up to STRAIGHT_LIMIT is straight on, up to
+        SLIGHT_LIMIT is slightly to a side, up to SHARP_LIMIT is to a side, up to BACK_LIMIT is
+        sharply to a side, and more than that is going back.
 
         Args:
             following: The step that starts where this one ends.
 
         Returns:
             STRAIGHT, SLIGHT_RIGHT, RIGHT, SHARP_RIGHT, BACK or the same three to the left.
-            It is None when either step changes floors or has no length, because there is no
-            direction to compare.
+            UP or DOWN when the following step goes up or down. It is None when there is no
+            direction to compare, like a step with no length.
         '''
         if not isinstance(following, RouteStep):
             raise ValueError("following must be a RouteStep object")
-        if (self.changes_floor or following.changes_floor
-                or 0 in (self.geometry.length, following.geometry.length)):
+        if following.rise_m > 0:
+            return EnumMovement.UP
+        if following.rise_m < 0:
+            return EnumMovement.DOWN
+        angle = self.__angle_to(following)
+        return None if angle is None else self.__movement(angle)
+
+    def __angle_to(self, following: 'RouteStep') -> float | None:
+        '''Finds the turn from this step to the following one, in degrees.
+
+        Positive is to the right. When this step changes floors, the turn is measured from the
+        facing of the node where it ends. It is None when there is no direction to compare.
+        '''
+        if following.changes_floor or following.geometry.length == 0:
+            return None
+        if self.changes_floor:
+            facing = getattr(self.end, "facing", None)
+            if facing is None:
+                return None
+            delta_x, delta_y = following.geometry.departure_point - following.points[0]
+            heading = math.degrees(math.atan2(delta_y, delta_x))
+            return (heading - facing + 180) % 360 - 180
+        if self.geometry.length == 0:
             return None
         junction = self.points[-1]
         if following.points[0] != junction:
             raise ValueError("the steps do not meet at the same point")
         angle = junction.turn_angle(self.geometry.approach_point,
                                     following.geometry.departure_point)
+        return angle
+
+    def __movement(self, angle: float) -> EnumMovement:
+        '''Turns the size of a turn, in degrees, into a movement, by the limits of the class.'''
         size = abs(angle)
         right = angle > 0
         if size <= self.STRAIGHT_LIMIT:
